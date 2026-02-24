@@ -51,7 +51,7 @@
 
 /* Button */
 .welcomePage-content button {
-  background: linear-gradient(to right, #2563eb, #4C56C3);
+  background: linear-gradient(to right, #2563eb, #4c56c3);
   border: none;
   color: white;
   padding: 22px 32px;
@@ -83,7 +83,7 @@
 }
 
 /* Mobile */
-@media (max-width: 400px) {
+@media (max-width: 300px) {
   .welcomePage {
     padding: 20px;
   }
