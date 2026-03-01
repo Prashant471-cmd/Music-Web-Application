@@ -3,7 +3,7 @@ import getStartPage from "../assets/LoginPic.png";
 import logo from "../assets/AppLogo.png";
 // import "./index.css";
 
-const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+const CLIENT_ID = "ff731e02bc72489dbd8387e40d5d29f0";
 const REDIRECT_URI = window.location.origin + "/";
 const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
 const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
@@ -19,7 +19,8 @@ const SCOPES = [
 
 // --- 1. PKCE Security Helper Functions ---
 const generateRandomString = (length) => {
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const possible =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const values = crypto.getRandomValues(new Uint8Array(length));
   return values.reduce((acc, x) => acc + possible[x % possible.length], "");
 };
@@ -27,25 +28,27 @@ const generateRandomString = (length) => {
 const sha256 = async (plain) => {
   const encoder = new TextEncoder();
   const data = encoder.encode(plain);
-  return window.crypto.subtle.digest('SHA-256', data);
+  return window.crypto.subtle.digest("SHA-256", data);
 };
 
 const base64encode = (input) => {
   return btoa(String.fromCharCode(...new Uint8Array(input)))
-    .replace(/=/g, '')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_');
+    .replace(/=/g, "")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
 };
 // -----------------------------------------
 
 const Login = () => {
   // We check for "access_token" instead of "token" to be more precise
-  const [token, setToken] = useState(window.localStorage.getItem("access_token") || "");
+  const [token, setToken] = useState(
+    window.localStorage.getItem("access_token") || "",
+  );
 
   useEffect(() => {
     // Spotify now returns a ?code=... in the URL search params, not a #hash
     const urlParams = new URLSearchParams(window.location.search);
-    let code = urlParams.get('code');
+    let code = urlParams.get("code");
 
     if (code && !token) {
       exchangeToken(code);
@@ -56,18 +59,18 @@ const Login = () => {
   const handleLogin = async () => {
     // Generate the secret (Verifier) and the hashed version (Challenge)
     const codeVerifier = generateRandomString(64);
-    window.localStorage.setItem('code_verifier', codeVerifier); // Save secret for later
-    
+    window.localStorage.setItem("code_verifier", codeVerifier); // Save secret for later
+
     const hashed = await sha256(codeVerifier);
     const codeChallenge = base64encode(hashed);
 
     // Build the secure Spotify login URL
     const authUrl = new URL(AUTH_ENDPOINT);
     authUrl.search = new URLSearchParams({
-      response_type: 'code', // As requested by Spotify!
+      response_type: "code", // As requested by Spotify!
       client_id: CLIENT_ID,
       scope: SCOPES.join(" "),
-      code_challenge_method: 'S256',
+      code_challenge_method: "S256",
       code_challenge: codeChallenge,
       redirect_uri: REDIRECT_URI,
     }).toString();
@@ -78,16 +81,16 @@ const Login = () => {
 
   // --- 3. The Token Exchange ---
   const exchangeToken = async (code) => {
-    const codeVerifier = window.localStorage.getItem('code_verifier');
+    const codeVerifier = window.localStorage.getItem("code_verifier");
 
     const payload = {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({
         client_id: CLIENT_ID,
-        grant_type: 'authorization_code',
+        grant_type: "authorization_code",
         code: code,
         redirect_uri: REDIRECT_URI,
         code_verifier: codeVerifier, // Proving we are the ones who initiated the login
