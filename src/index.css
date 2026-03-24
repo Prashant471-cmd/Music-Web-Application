@@ -48,7 +48,8 @@
 }
 
 /* Button */
-.welcomePage-content button {
+.welcomePage-content button,
+.buttons {
   background: linear-gradient(to right, #2563eb, #4c56c3);
   border: none;
   color: white;
@@ -63,7 +64,8 @@
   transition: all 0.3s ease;
 }
 
-.welcomePage-content button:hover {
+.welcomePage-content button:hover,
+.buttons:hover {
   background: linear-gradient(to right, #1d4ed8, #1e40af);
   box-shadow: 0 12px 25px rgba(37, 99, 235, 0.5);
   transform: scale(1.05);
@@ -82,7 +84,7 @@
 }
 
 /* Mobile */
-@media (max-width: 300px) {
+@media (max-width: 480px) {
   .welcomePage {
     padding: 20px;
   }
@@ -171,20 +173,14 @@
   transform: scale(1.05);
 }
 
-
-
-
-
-
-
-
-
 /* Base App Styling */
 body {
   margin: 0;
   background-color: #000; /* Dark theme */
   color: #fff;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
 }
 
 /* The Layout Wrapper */
@@ -202,70 +198,89 @@ body {
   padding-bottom: 80px; /* CRITICAL: Adds space so the bottom nav doesn't cover the last song */
 }
 
-/* The Fixed Bottom Nav */
+/* The Fixed Bottom Nav - SINGLE AUTHORITATIVE VERSION */
 .bottom-nav {
   position: fixed;
   bottom: 0;
+  left: 0;
   width: 100%;
-  height: 65px;
+  height: 70px;
   background-color: #1a1a1a;
   display: flex;
   justify-content: space-around;
   align-items: center;
-  border-top: 1px solid #333;
   z-index: 1000;
+  border-top: 1px solid #2a2a2a;
 }
 
 .nav-item {
-  color: #888;
-  font-size: 24px;
+  color: #888888;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-decoration: none;
-  padding: 10px;
+  transition: color 0.2s;
 }
 
-/* React Router automatically applies this class to the active link */
 .nav-item.active {
-  color: #fff;
-  border-bottom: 3px solid #6b4cff; /* The purple line from your design */
+  color: #ffffff;
 }
 
+.nav-item.active::after {
+  content: "";
+  display: block;
+  width: 20px;
+  height: 3px;
+  background-color: #ffffff;
+  border-radius: 2px;
+  margin-top: 4px;
+}
 
+/* Desktop Responsive Lock */
+@media (min-width: 768px) {
+  .bottom-nav {
+    max-width: 800px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
 
-
-
-
-
-
-
-
-
+/* Dashboard */
 .dashboard-container {
+  color: #ffffff;
   padding: 20px;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
 }
 
-.dash-header {
+.dashboard-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  letter-spacing: -1px;
-}
-
-.header-icons .icon {
-  margin-left: 15px;
-  font-size: 20px;
+.header-icons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
 }
 
 .greeting {
-  font-size: 16px;
-  font-weight: normal;
-  color: #ccc;
-  margin-bottom: 30px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 25px;
+}
+
+.section-container {
+  margin-bottom: 35px;
 }
 
 .section-header {
@@ -275,83 +290,89 @@ body {
   margin-bottom: 15px;
 }
 
-.section-header h3 {
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 700;
   margin: 0;
-  font-size: 18px;
 }
 
-.view-all {
-  background: #222;
+.view-all-btn {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
   border: none;
-  color: #ccc;
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-/* Horizontal Scrolling Magic */
-.horizontal-scroll {
+/* Horizontal Scrolling */
+.scroll-row {
   display: flex;
   gap: 15px;
   overflow-x: auto;
-  padding-bottom: 10px;
-  scrollbar-width: none; /* Hides scrollbar in Firefox */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-.horizontal-scroll::-webkit-scrollbar {
-  display: none; /* Hides scrollbar in Chrome/Safari */
+.scroll-row::-webkit-scrollbar {
+  display: none;
 }
 
-.square-card {
-  min-width: 110px;
-  height: 110px;
-  background-color: #333;
+.card-square img {
+  width: 120px;
+  height: 120px;
   border-radius: 12px;
+  object-fit: cover;
 }
 
-.large-card {
-  min-width: 180px;
+.card-wide img {
+  width: 220px;
   height: 140px;
-  background-color: #333;
   border-radius: 12px;
+  object-fit: cover;
 }
 
-.media-section {
-  margin-bottom: 30px;
+/* Vertical List */
+.popular-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* Song List Items */
-.song-item {
+.song-row {
   display: flex;
   align-items: center;
-  margin-bottom: 15px;
+  gap: 15px;
+  cursor: pointer;
 }
 
-.song-img {
-  width: 50px;
-  height: 50px;
-  background-color: #333;
-  border-radius: 8px;
-  margin-right: 15px;
+.song-image {
+  width: 55px;
+  height: 55px;
+  border-radius: 10px;
+  object-fit: cover;
 }
 
 .song-info {
-  flex: 1; /* Pushes the play button to the right */
+  flex: 1;
 }
 
-.song-info h4 {
-  margin: 0 0 5px 0;
-  font-size: 16px;
+.song-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
 }
 
-.song-info p {
-  margin: 0;
-  font-size: 13px;
-  color: #888;
+.song-artist {
+  font-size: 0.85rem;
+  color: #a0a0a0;
 }
 
-.play-btn {
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 20px;
+/* Responsive Desktop Magic */
+@media (min-width: 768px) {
+  .scroll-row {
+    flex-wrap: wrap; /* Allows cards to wrap into a grid */
+    overflow-x: visible; /* Disables horizontal scrolling on large screens */
+  }
 }

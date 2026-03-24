@@ -1,9 +1,6 @@
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import logo from "../assets/AppLogo.png";
 import getStartPage from "../assets/LoginPic.png";
-// import Login from "../components/LoginPage";
-import Dashboard from "../pages/Dashboard";
-import { use } from "react";
 
 const Welcome = () => {
   const navigate = useNavigate();

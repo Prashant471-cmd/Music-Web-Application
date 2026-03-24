@@ -1,18 +1,16 @@
-import { Outlet } from "react-router-dom"
-import BottomNav from "./Footer"
+import React from "react";
+import { Outlet } from "react-router-dom";
+import Footer from "./Footer";
 
 const Layout = () => {
-    return(
-        <>
-         <div className="app-layout">
-            <main className="page-content">
-                <Outlet />
-            </main>
-
-            <BottomNav />
-         </div>
-        </>
-    );
+  return (
+    <div style={{ backgroundColor: "#050505", minHeight: "100vh" }}>
+      <div style={{ paddingBottom: "70px" }}>
+        <Outlet /> 
+      </div>
+      <Footer />
+    </div>
+  );
 };
 
 export default Layout;
