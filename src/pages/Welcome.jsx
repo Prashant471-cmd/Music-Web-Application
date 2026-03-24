@@ -24,7 +24,7 @@ const Welcome = () => {
           </h1>
 
           {/* <button className="buttons" onClick={() => navigate("/dashboard")}> */}
-          <button className="buttons" onClick={() => navigate("/login")}>
+            <button className="buttons" onClick={() => navigate("/login")}>
             <strong>Get started</strong>
           </button>
         </div>

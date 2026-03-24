@@ -1,8 +1,14 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 // import "./Dashboard.css";
-// import logo from "../assets/AppLogo.png"; 
+// Importing the exact same way you did in Welcome.jsx
+import logo from "../assets/AppLogo.png"; 
+import getStartPage from "../assets/LoginPic.png";
 
 const Dashboard = () => {
+
+  const navigate = useNavigate();
+
   // --- Placeholder Data ---
   const recentlyPlayed = [
     { id: 1, img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&q=80" },
@@ -29,17 +35,20 @@ const Dashboard = () => {
         {/* Header */}
         <header className="dashboard-header">
           <div className="dashboard-logo">
-            {/* <img src={logo} alt="Melo" style={{ height: "35px" }} /> */}
-            <h1 style={{ margin: 0, fontSize: "24px", letterSpacing: "-1px" }}>melo</h1>
+            {/* Using the image instead of text */}
+            <img src={logo} alt="Melo" style={{ width: "90px", objectFit: "contain" }} />
           </div>
+          
           <div className="header-icons">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            {/* Notification Bell Icon */}
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18 16v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5,1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-5 4c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2z"/>
             </svg>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
+            
+            {/* Profile Circle Icon */}
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"
+            onClick={() => navigate("/profile")}>
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.67 0-5.06-1.1-6.8-2.84.14-1.9 4.14-2.96 6.8-2.96s6.66 1.06 6.8 2.96C17.06 18.9 14.67 20 12 20z"/>
             </svg>
           </div>
         </header>

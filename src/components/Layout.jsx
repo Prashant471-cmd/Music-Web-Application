@@ -4,8 +4,8 @@ import Footer from "./Footer";
 
 const Layout = () => {
   return (
-    <div style={{ backgroundColor: "#050505", minHeight: "100vh" }}>
-      <div style={{ paddingBottom: "70px" }}>
+    <div className="app-layout">
+      <div className="page-content">
         <Outlet /> 
       </div>
       <Footer />

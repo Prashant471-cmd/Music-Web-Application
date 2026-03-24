@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import getStartPage from "../assets/LoginPic.png";
 import logo from "../assets/AppLogo.png";
@@ -47,7 +47,57 @@ const Login = () => {
   const [token, setToken] = useState(
     window.localStorage.getItem("access_token") || "",
   );
+  const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  const exchangeToken = useCallback(async (code) => {
+    const codeVerifier = window.localStorage.getItem("code_verifier");
+
+    const payload = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        client_id: CLIENT_ID,
+        grant_type: "authorization_code",
+        code: code,
+        redirect_uri: REDIRECT_URI,
+        code_verifier: codeVerifier,
+      }),
+    };
+
+    try {
+      const response = await fetch(TOKEN_ENDPOINT, payload);
+
+      // Check if response is successful
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error_description || "Login failed. Please try again.");
+      }
+
+      const data = await response.json();
+
+      // Check if access token exists
+      if (data.access_token) {
+        window.localStorage.setItem("access_token", data.access_token);
+        setToken(data.access_token);
+        setError(""); // Clear any previous errors
+        window.history.replaceState({}, document.title, "/login"); // Clean the URL
+        navigate("/dashboard"); // Teleport to Dashboard!
+      } else if (data.error) {
+        throw new Error(data.error_description || "Unable to get access token");
+      } else {
+        throw new Error("No access token received from Spotify");
+      }
+    } catch (error) {
+      const errorMessage = error.message || "An error occurred during login. Please try again.";
+      setError(errorMessage);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error exchanging token", error);
+      }
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -59,7 +109,7 @@ const Login = () => {
       // If we already have a token, skip the login screen!
       navigate("/dashboard");
     }
-  }, [token, navigate]);
+  }, [token, navigate, exchangeToken]);
 
   const handleLogin = async () => {
     const codeVerifier = generateRandomString(64);
@@ -79,38 +129,6 @@ const Login = () => {
     }).toString();
 
     window.location.href = authUrl.toString();
-  };
-
-  const exchangeToken = async (code) => {
-    const codeVerifier = window.localStorage.getItem("code_verifier");
-
-    const payload = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        client_id: CLIENT_ID,
-        grant_type: "authorization_code",
-        code: code,
-        redirect_uri: REDIRECT_URI,
-        code_verifier: codeVerifier,
-      }),
-    };
-
-    try {
-      const response = await fetch(TOKEN_ENDPOINT, payload);
-      const data = await response.json();
-
-      if (data.access_token) {
-        window.localStorage.setItem("access_token", data.access_token);
-        setToken(data.access_token);
-        window.history.replaceState({}, document.title, "/login"); // Clean the URL
-        navigate("/dashboard"); // Teleport to Dashboard!
-      }
-    } catch (error) {
-      console.error("Error exchanging token", error);
-    }
   };
 
   return (
@@ -133,6 +151,11 @@ const Login = () => {
           <br />
           all your favorite artists.
         </h1>
+        {error && (
+          <div style={{ color: "#ff6b6b", marginBottom: "20px", fontSize: "0.9rem" }}>
+            {error}
+          </div>
+        )}
         <button onClick={handleLogin} className="login-button">
           <strong>Login / SignUp</strong>
         </button>
