@@ -4,7 +4,7 @@ import logo from "../assets/AppLogo.png";
 // import "./index.css";
 
 const CLIENT_ID = "ff731e02bc72489dbd8387e40d5d29f0";
-const REDIRECT_URI = window.location.origin + "/";
+const REDIRECT_URI = window.location.origin + "/login";
 const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
 const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
 
