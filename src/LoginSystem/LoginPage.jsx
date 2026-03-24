@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import getStartPage from "../assets/LoginPic.png";
 import logo from "../assets/AppLogo.png";
-// import "./index.css";
 
 const CLIENT_ID = "ff731e02bc72489dbd8387e40d5d29f0";
+// This will automatically grab your live domain and add /login to it
+// Result: https://melo.prashantdeuja.com.np/login
 const REDIRECT_URI = window.location.origin + "/login";
+
+// THE REAL SPOTIFY ENDPOINTS
 const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
 const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
 
@@ -37,37 +41,35 @@ const base64encode = (input) => {
     .replace(/\+/g, "-")
     .replace(/\//g, "_");
 };
-// -----------------------------------------
 
 const Login = () => {
-  // We check for "access_token" instead of "token" to be more precise
   const [token, setToken] = useState(
     window.localStorage.getItem("access_token") || "",
   );
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Spotify now returns a ?code=... in the URL search params, not a #hash
     const urlParams = new URLSearchParams(window.location.search);
     let code = urlParams.get("code");
 
     if (code && !token) {
       exchangeToken(code);
+    } else if (token) {
+      // If we already have a token, skip the login screen!
+      navigate("/dashboard");
     }
-  }, [token]);
+  }, [token, navigate]);
 
-  // --- 2. The Login Action ---
   const handleLogin = async () => {
-    // Generate the secret (Verifier) and the hashed version (Challenge)
     const codeVerifier = generateRandomString(64);
-    window.localStorage.setItem("code_verifier", codeVerifier); // Save secret for later
+    window.localStorage.setItem("code_verifier", codeVerifier);
 
     const hashed = await sha256(codeVerifier);
     const codeChallenge = base64encode(hashed);
 
-    // Build the secure Spotify login URL
     const authUrl = new URL(AUTH_ENDPOINT);
     authUrl.search = new URLSearchParams({
-      response_type: "code", // As requested by Spotify!
+      response_type: "code",
       client_id: CLIENT_ID,
       scope: SCOPES.join(" "),
       code_challenge_method: "S256",
@@ -75,11 +77,9 @@ const Login = () => {
       redirect_uri: REDIRECT_URI,
     }).toString();
 
-    // Redirect the user
     window.location.href = authUrl.toString();
   };
 
-  // --- 3. The Token Exchange ---
   const exchangeToken = async (code) => {
     const codeVerifier = window.localStorage.getItem("code_verifier");
 
@@ -93,7 +93,7 @@ const Login = () => {
         grant_type: "authorization_code",
         code: code,
         redirect_uri: REDIRECT_URI,
-        code_verifier: codeVerifier, // Proving we are the ones who initiated the login
+        code_verifier: codeVerifier,
       }),
     };
 
@@ -104,26 +104,19 @@ const Login = () => {
       if (data.access_token) {
         window.localStorage.setItem("access_token", data.access_token);
         setToken(data.access_token);
-        // Clean up the URL to remove the messy code
-        window.history.replaceState({}, document.title, "/");
+        window.history.replaceState({}, document.title, "/login"); // Clean the URL
+        navigate("/dashboard"); // Teleport to Dashboard!
       }
     } catch (error) {
       console.error("Error exchanging token", error);
     }
   };
 
-  const logout = () => {
-    setToken("");
-    window.localStorage.removeItem("access_token");
-    window.localStorage.removeItem("code_verifier");
-  };
-
   return (
     <div
       className="Login-container"
       style={{
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.7)),
-           url(${getStartPage})`,
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.7)), url(${getStartPage})`,
       }}
     >
       <div className="welcomePage-logo">
@@ -139,20 +132,9 @@ const Login = () => {
           <br />
           all your favorite artists.
         </h1>
-
-        {!token ? (
-          // Changed from an <a> tag to a <button> to run our async function
-          <button onClick={handleLogin} className="login-button">
-            <strong>Login / SignUp</strong>
-          </button>
-        ) : (
-          <div className="logged-in">
-            <h2 className="success-text">Successfully Logged In !</h2>
-            <button onClick={logout} className="logout-button">
-              Logout
-            </button>
-          </div>
-        )}
+        <button onClick={handleLogin} className="login-button">
+          <strong>Login / SignUp</strong>
+        </button>
       </div>
     </div>
   );
