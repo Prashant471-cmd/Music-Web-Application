@@ -1,110 +1,196 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-// import "./Dashboard.css";
-// Importing the exact same way you did in Welcome.jsx
-import logo from "../assets/AppLogo.png"; 
-import getStartPage from "../assets/LoginPic.png";
+import React, { useEffect, useState } from "react";
+// import "./Dashboard.css"; // Make sure this is uncommented so your styles work!
+import logo from "../assets/AppLogo.png";
 
 const Dashboard = () => {
+  // State to hold our real Spotify data
+  const [userProfile, setUserProfile] = useState(null);
+  const [recentlyPlayed, setRecentlyPlayed] = useState([]);
+  const [topTracks, setTopTracks] = useState([]);
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    // 1. Get the token from local storage
+    const token = window.localStorage.getItem("access_token");
+    if (!token) return;
 
-  // --- Placeholder Data ---
-  const recentlyPlayed = [
-    { id: 1, img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&q=80" },
-    { id: 2, img: "https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=300&q=80" },
-    { id: 3, img: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=300&q=80" },
-    { id: 4, img: "https://images.unsplash.com/photo-1493225457124-a1a2a5956093?w=300&q=80" },
-  ];
+    // Helper function to fetch data securely using the real Spotify API URL
+    const fetchSpotifyData = async (endpoint) => {
+      const response = await fetch(`https://api.spotify.com/v1${endpoint}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Failed to fetch");
+      return response.json();
+    };
 
-  const forYou = [
-    { id: 1, img: "https://images.unsplash.com/photo-1619983081563-430f63602796?w=500&q=80" },
-    { id: 2, img: "https://images.unsplash.com/photo-1516280440502-65f58c3a1311?w=500&q=80" },
-  ];
+    // 2. Fetch all the data simultaneously
+    const loadDashboardData = async () => {
+      try {
+        // Fetch User Profile (Name, Profile Pic)
+        const profileData = await fetchSpotifyData("/me");
+        setUserProfile(profileData);
 
-  const popularSongs = [
-    { id: 1, title: "Perfect", artist: "Ed Sheeran", img: "https://images.unsplash.com/photo-1493225457124-a1a2a5956093?w=150&q=80" },
-    { id: 2, title: "Timi Nai Hau", artist: "Sabin Rai", img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150&q=80" },
-    { id: 3, title: "Bachau", artist: "Albatross", img: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150&q=80" },
-  ];
+        // Fetch Recently Played (Limit to 10)
+        const recentData = await fetchSpotifyData("/me/player/recently-played?limit=10");
+        
+        // Spotify returns lots of duplicates here, so we extract just the unique tracks
+        const uniqueTracks = Array.from(
+          new Set(recentData.items.map((item) => item.track.id))
+        ).map(
+          (id) => recentData.items.find((item) => item.track.id === id).track
+        );
+        setRecentlyPlayed(uniqueTracks);
+
+        // Fetch Top Tracks (Limit to 5)
+        const topData = await fetchSpotifyData("/me/top/tracks?limit=5");
+        setTopTracks(topData.items);
+      } catch (error) {
+        console.error("Error loading Spotify data:", error);
+      }
+    };
+
+    loadDashboardData();
+  }, []);
+
+  // Function to play a specific song using the Web Playback SDK
+  const playSong = async (trackUri) => {
+    const token = window.localStorage.getItem("access_token");
+    const deviceId = window.localStorage.getItem("device_id"); // Saved from Player.jsx
+
+    if (!token || !deviceId) {
+      alert("Please open your Spotify App and select 'Melo Web Player' from the devices list first!");
+      return;
+    }
+
+    try {
+      // FIXED: Pointing to the correct Spotify player endpoint
+      await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          uris: [trackUri], // Spotify needs the exact URI of the song to play it
+        }),
+      });
+    } catch (error) {
+      console.error("Error playing song:", error);
+    }
+  };
 
   return (
     <div className="dashboard-container">
       <div className="dashboard-content">
-        
         {/* Header */}
         <header className="dashboard-header">
           <div className="dashboard-logo">
-            {/* Using the image instead of text */}
-            <img src={logo} alt="Melo" style={{ width: "90px", objectFit: "contain" }} />
+            <img
+              src={logo}
+              alt="Melo"
+              style={{ width: "90px", objectFit: "contain" }}
+            />
           </div>
-          
+
           <div className="header-icons">
             {/* Notification Bell Icon */}
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M18 16v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5,1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-5 4c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2z"/>
+              <path d="M18 16v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5,1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-5 4c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2z" />
             </svg>
-            
-            {/* Profile Circle Icon */}
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"
-            onClick={() => navigate("/profile")}>
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.67 0-5.06-1.1-6.8-2.84.14-1.9 4.14-2.96 6.8-2.96s6.66 1.06 6.8 2.96C17.06 18.9 14.67 20 12 20z"/>
-            </svg>
+
+            {/* Show real profile picture if available, else show default icon */}
+            {userProfile?.images?.[0]?.url ? (
+              <img
+                src={userProfile.images[0].url}
+                alt="Profile"
+                style={{
+                  width: "28px",
+                  height: "28px",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                }}
+              />
+            ) : (
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.67 0-5.06-1.1-6.8-2.84.14-1.9 4.14-2.96 6.8-2.96s6.66 1.06 6.8 2.96C17.06 18.9 14.67 20 12 20z" />
+              </svg>
+            )}
           </div>
         </header>
 
-        {/* Greeting */}
-        <h2 className="greeting">Good afternoon, dear!</h2>
+        {/* Dynamic Greeting */}
+        <h2 className="greeting">
+          Good afternoon, {userProfile?.display_name || "dear"}!
+        </h2>
 
-        {/* Pick up where you left */}
+        {/* Pick up where you left (Real Recent Data) */}
         <section className="section-container">
           <div className="section-header">
             <h3 className="section-title">Pick up where you left</h3>
             <button className="view-all-btn">View all</button>
           </div>
           <div className="scroll-row">
-            {recentlyPlayed.map((item) => (
-              <div key={item.id} className="card-square">
-                <img src={item.img} alt="Recently played" />
+            {recentlyPlayed.map((track) => (
+              <div
+                key={track.id}
+                className="card-square"
+                onClick={() => playSong(track.uri)}
+                style={{ cursor: "pointer" }}
+                title={`Play ${track.name}`}
+              >
+                {/* Dynamically pull the album cover image */}
+                <img src={track.album.images[0]?.url} alt={track.name} />
               </div>
             ))}
           </div>
         </section>
 
-        {/* For you */}
+        {/* Popular Songs (Real Top Tracks Data) */}
         <section className="section-container">
-          <div className="section-header">
-            <h3 className="section-title">For you</h3>
-            <button className="view-all-btn">View all</button>
-          </div>
-          <div className="scroll-row">
-            {forYou.map((item) => (
-              <div key={item.id} className="card-wide">
-                <img src={item.img} alt="For you" />
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Popular Songs */}
-        <section className="section-container">
-          <h3 className="section-title" style={{ marginBottom: "15px" }}>Popular songs</h3>
+          <h3
+            className="section-title"
+            style={{ marginBottom: "15px", marginTop: "20px" }}
+          >
+            Popular songs
+          </h3>
           <div className="popular-list">
-            {popularSongs.map((song) => (
-              <div key={song.id} className="song-row">
-                <img src={song.img} alt={song.title} className="song-image" />
+            {topTracks.map((track) => (
+              <div key={track.id} className="song-row">
+                <img
+                  src={track.album.images[0]?.url}
+                  alt={track.name}
+                  className="song-image"
+                />
                 <div className="song-info">
-                  <div className="song-title">{song.title}</div>
-                  <div className="song-artist">{song.artist}</div>
+                  <div className="song-title">{track.name}</div>
+                  <div className="song-artist">{track.artists[0]?.name}</div>
                 </div>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+
+                {/* Magic Play Button */}
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="white"
+                  style={{ cursor: "pointer", transition: "transform 0.2s" }}
+                  onClick={() => playSong(track.uri)}
+                  onMouseOver={(e) =>
+                    (e.currentTarget.style.transform = "scale(1.2)")
+                  }
+                  onMouseOut={(e) =>
+                    (e.currentTarget.style.transform = "scale(1)")
+                  }
+                >
                   <polygon points="5 3 19 12 5 21 5 3"></polygon>
                 </svg>
               </div>
             ))}
           </div>
         </section>
-
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/AppLogo.png";
 import getStartPage from "../assets/LoginPic.png";
+import { loginUrl } from "../Spotify";
 
 const Welcome = () => {
   const navigate = useNavigate();
@@ -23,10 +24,12 @@ const Welcome = () => {
             Favourite artist
           </h1>
 
-          {/* <button className="buttons" onClick={() => navigate("/dashboard")}> */}
-            <button className="buttons" onClick={() => navigate("/login")}>
+          <a href={loginUrl} className="buttons" style={{ textDecoration: "none", display: "inline-block" }}>
+          {/*  <button className="buttons" onClick={() => navigate("/dashboard")}> */}
+            {/* <button className="buttons" onClick={() => navigate("/login")}> */}
             <strong>Get started</strong>
-          </button>
+          {/* </button> */}
+          </a>
         </div>
       </div>
     </>

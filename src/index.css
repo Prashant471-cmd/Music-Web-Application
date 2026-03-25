@@ -6,8 +6,9 @@
   font-family: "Segoe UI", sans-serif;
 }
 
-/* Welcome Page */
-/* Full Page */
+/* =========================================
+   WELCOME PAGE
+========================================= */
 .welcomePage {
   height: 100vh;
   width: 100%;
@@ -18,11 +19,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-
   padding: 40px 20px;
 }
 
-/* Logo Top Left */
 .welcomePage-logo {
   position: absolute;
   top: 20px;
@@ -33,14 +32,12 @@
   width: 60px;
 }
 
-/* Content Center */
 .welcomePage-content {
   color: white;
   max-width: 500px;
   text-align: center;
 }
 
-/* Heading */
 .welcomePage-content h1 {
   font-size: 1.5rem;
   font-weight: 400;
@@ -48,7 +45,6 @@
   margin-bottom: 35px;
 }
 
-/* Button */
 .welcomePage-content button,
 .buttons {
   background: linear-gradient(to right, #2563eb, #4c56c3);
@@ -71,46 +67,40 @@
   transform: scale(1.05);
 }
 
-/* Tablet */
 @media (max-width: 1000px) {
   .welcomePage-content h1 {
     font-size: 2rem;
   }
-
   .welcomePage-logo {
     left: 2rem;
     top: 2rem;
   }
 }
 
-/* Mobile */
 @media (max-width: 300px) {
   .welcomePage {
     padding: 20px;
   }
-
   .welcomePage-logo {
     position: static;
     text-align: center;
     margin-bottom: 30px;
   }
-
   .welcomePage-logo img {
     width: 110px;
   }
-
   .welcomePage-content h1 {
     font-size: 1.6rem;
   }
-
   .welcomePage-content button {
     width: 100%;
+    min-width: unset;
   }
 }
 
-/*----------------------------------------*/
-
-/*Full Page Styling */
+/* =========================================
+   LOGIN PAGE
+========================================= */
 .Login-container {
   padding: 40px 20px;
   font-family: sans-serif;
@@ -125,7 +115,6 @@
   align-items: center;
 }
 
-/* Login Button */
 .login-button {
   padding: 22px 32px;
   background: linear-gradient(to right, #2563eb, #4c56c3);
@@ -145,18 +134,15 @@
   transform: scale(1.05);
 }
 
-/* Logged In Section */
 .logged-in {
   margin-top: 30px;
 }
 
-/* Success Text */
 .success-text {
   color: #1db954;
   margin-bottom: 20px;
 }
 
-/* Logout Button */
 .logout-button {
   padding: 10px 20px;
   cursor: pointer;
@@ -172,32 +158,29 @@
   transform: scale(1.05);
 }
 
-/* Base App Styling */
+/* =========================================
+   BASE APP & LAYOUT
+========================================= */
 body {
   margin: 0;
-  background-color: #000; /* Dark theme */
+  background-color: #000;
   color: #fff;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* The Layout Wrapper */
 .app-layout {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  overflow: hidden; /* Prevents whole page bounce */
+  overflow: hidden;
 }
 
-/* The Page Content Area */
 .page-content {
   flex: 1;
-  overflow-y: auto; /* Lets the dashboard scroll */
-  padding-bottom: 80px; /* CRITICAL: Adds space so the bottom nav doesn't cover the last song */
+  overflow-y: auto;
+  padding-bottom: 80px; 
 }
 
-/* The Fixed Bottom Nav - SINGLE AUTHORITATIVE VERSION */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -235,22 +218,22 @@ body {
   margin-top: 4px;
 }
 
-/* Desktop Responsive Lock */
 @media (min-width: 768px) {
   .bottom-nav {
     max-width: 800px;
     left: 50%;
     transform: translateX(-50%);
+    border-radius: 15px 15px 0 0;
   }
 }
 
-/* Dashboard Container */
+/* =========================================
+   DASHBOARD
+========================================= */
 .dashboard-container {
   color: #ffffff;
   padding: 20px;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 .dashboard-content {
@@ -306,7 +289,6 @@ body {
   cursor: pointer;
 }
 
-/* Horizontal Scrolling */
 .scroll-row {
   display: flex;
   gap: 15px;
@@ -332,7 +314,6 @@ body {
   object-fit: cover;
 }
 
-/* Vertical List */
 .popular-list {
   display: flex;
   flex-direction: column;
@@ -368,35 +349,40 @@ body {
   color: #a0a0a0;
 }
 
-/* Responsive Desktop Magic */
 @media (min-width: 768px) {
   .scroll-row {
-    flex-wrap: wrap; /* Allows cards to wrap into a grid */
-    overflow-x: visible; /* Disables horizontal scrolling on large screens */
+    flex-wrap: wrap; 
+    overflow-x: visible; 
+  }
+  .greeting {
+    font-size: 1.8rem;
+  }
+  .card-square img {
+    width: 150px;
+    height: 150px;
   }
 }
 
-/* Profile page */
+/* =========================================
+   PROFILE PAGE
+========================================= */
 .profile-container {
   padding: 20px;
   color: white;
   max-width: 800px;
   margin: 0 auto;
 }
+
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
 }
+
 .header-logo {
   width: 90px;
   object-fit: contain;
-}
-.header-icons {
-  display: flex;
-  gap: 20px;
-  align-items: center;
 }
 
 .profile-info {
@@ -405,6 +391,7 @@ body {
   align-items: center;
   margin-bottom: 30px;
 }
+
 .profile-pic {
   width: 150px;
   height: 150px;
@@ -412,11 +399,13 @@ body {
   object-fit: cover;
   margin-bottom: 15px;
 }
+
 .profile-name {
   font-size: 1.8rem;
   font-weight: 700;
   margin-bottom: 10px;
 }
+
 .edit-profile-btn {
   background-color: #2a2a2a;
   color: white;
@@ -428,6 +417,7 @@ body {
   margin-bottom: 15px;
   cursor: pointer;
 }
+
 .profile-stats {
   font-size: 0.9rem;
   color: #a0a0a0;
@@ -435,6 +425,7 @@ body {
   gap: 10px;
   align-items: center;
 }
+
 .dot {
   font-size: 1.2rem;
 }
@@ -445,6 +436,7 @@ body {
   border-bottom: 1px solid #333;
   margin-bottom: 20px;
 }
+
 .tab {
   font-size: 1.1rem;
   font-weight: 600;
@@ -453,9 +445,11 @@ body {
   cursor: pointer;
   position: relative;
 }
+
 .tab.active {
   color: #fff;
 }
+
 .tab.active::after {
   content: "";
   position: absolute;
@@ -471,25 +465,30 @@ body {
   flex-direction: column;
   gap: 15px;
 }
+
 .list-row {
   display: flex;
   align-items: center;
   gap: 15px;
 }
+
 .list-image {
   width: 60px;
   height: 60px;
   border-radius: 8px;
   object-fit: cover;
 }
+
 .list-text {
   flex: 1;
 }
+
 .list-title {
   font-size: 1rem;
   font-weight: 700;
   margin-bottom: 4px;
 }
+
 .list-subtitle {
   font-size: 0.85rem;
   color: #a0a0a0;
@@ -518,30 +517,30 @@ body {
   }
 }
 
-/* Artist page */
+/* =========================================
+   ARTIST PAGE
+========================================= */
 .artist-container {
   color: white;
   margin: 0 auto;
   max-width: 800px;
   padding-bottom: 20px;
 }
+
 .artist-hero {
   position: relative;
   height: 350px;
-  background: url("https://images.unsplash.com/photo-1516280440502-65f58c3a1311?w=800&q=80")
-    center/cover no-repeat;
+  background: url("https://images.unsplash.com/photo-1516280440502-65f58c3a1311?w=800&q=80") center/cover no-repeat;
   display: flex;
   flex-direction: column;
 }
+
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.3) 0%,
-    rgba(0, 0, 0, 1) 100%
-  );
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 1) 100%);
 }
+
 .page-header.transparent {
   position: relative;
   z-index: 2;
@@ -555,16 +554,19 @@ body {
   right: 20px;
   z-index: 2;
 }
+
 .artist-name {
   font-size: 3rem;
   font-weight: 800;
   margin-bottom: 5px;
 }
+
 .monthly-listeners {
   font-size: 0.9rem;
   color: #ccc;
   margin-bottom: 15px;
 }
+
 .artist-actions {
   display: flex;
   gap: 20px;
@@ -589,11 +591,22 @@ body {
 .artist-content {
   padding: 20px;
 }
+
 .section-heading {
   font-size: 1.4rem;
   font-weight: 700;
   margin-bottom: 15px;
   margin-top: 10px;
+}
+
+@media (min-width: 768px) {
+  .artist-hero {
+    height: 450px;
+    border-radius: 0 0 20px 20px;
+  }
+  .artist-name {
+    font-size: 4rem;
+  }
 }
 
 @media (max-width: 300px) {
@@ -623,18 +636,22 @@ body {
   }
 }
 
-/* Album page */
+/* =========================================
+   ALBUM PAGE
+========================================= */
 .album-container {
   padding: 20px;
   color: white;
   max-width: 800px;
   margin: 0 auto;
 }
+
 .album-cover-wrapper {
   display: flex;
   justify-content: center;
   margin-bottom: 25px;
 }
+
 .main-album-art {
   width: 250px;
   height: 250px;
@@ -646,11 +663,13 @@ body {
 .album-header-info {
   margin-bottom: 15px;
 }
+
 .album-title {
   font-size: 2rem;
   font-weight: 800;
   margin-bottom: 5px;
 }
+
 .album-artist {
   font-size: 0.95rem;
   color: #a0a0a0;
@@ -662,6 +681,7 @@ body {
   align-items: center;
   margin-bottom: 25px;
 }
+
 .action-icons {
   display: flex;
   gap: 20px;
@@ -674,13 +694,22 @@ body {
   flex-direction: column;
   gap: 20px;
 }
+
 .track-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .track-text {
   flex: 1;
+}
+
+@media (min-width: 768px) {
+  .main-album-art {
+    width: 300px;
+    height: 300px;
+  }
 }
 
 @media (max-width: 300px) {
@@ -703,7 +732,9 @@ body {
   }
 }
 
-/* Song page */
+/* =========================================
+   SONG PAGE
+========================================= */
 .song-container {
   padding: 20px;
   color: white;
@@ -713,6 +744,7 @@ body {
   display: flex;
   flex-direction: column;
 }
+
 .now-playing-cover {
   flex-grow: 1;
   display: flex;
@@ -721,6 +753,7 @@ body {
   margin: 20px 0;
   max-height: 50vh;
 }
+
 .now-playing-cover img {
   width: 100%;
   max-width: 400px;
@@ -736,15 +769,18 @@ body {
   align-items: center;
   margin-bottom: 25px;
 }
+
 .now-playing-title {
   font-size: 1.8rem;
   font-weight: 800;
   margin-bottom: 5px;
 }
+
 .now-playing-artist {
   font-size: 0.95rem;
   color: #a0a0a0;
 }
+
 .song-actions {
   display: flex;
   gap: 15px;
@@ -754,6 +790,7 @@ body {
 .progress-container {
   margin-bottom: 30px;
 }
+
 .progress-bar-bg {
   width: 100%;
   height: 5px;
@@ -762,11 +799,13 @@ body {
   position: relative;
   cursor: pointer;
 }
+
 .progress-bar-fill {
   height: 100%;
   background-color: #fff;
   border-radius: 5px;
 }
+
 .progress-knob {
   width: 12px;
   height: 12px;
@@ -785,6 +824,7 @@ body {
   gap: 40px;
   margin-bottom: 40px;
 }
+
 .play-pause-btn {
   width: 65px;
   height: 65px;
@@ -816,34 +856,21 @@ body {
   }
 }
 
-/* Search page */
+/* =========================================
+   SEARCH PAGE
+========================================= */
 .search-page-container {
   padding: 20px;
   color: white;
   max-width: 800px;
   margin: 0 auto;
 }
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-}
-.header-logo {
-  width: 90px;
-  object-fit: contain;
-}
-.header-icons {
-  display: flex;
-  gap: 20px;
-  align-items: center;
-}
 
-/* Search Bar */
 .search-bar-wrapper {
   position: relative;
   margin-bottom: 25px;
 }
+
 .search-icon-inside {
   position: absolute;
   left: 15px;
@@ -851,6 +878,7 @@ body {
   transform: translateY(-50%);
   color: #fff;
 }
+
 .search-input-dark {
   width: 100%;
   padding: 12px 15px 12px 45px;
@@ -862,42 +890,46 @@ body {
   outline: none;
 }
 
-/* Recent List */
 .recent-list {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
+
 .recent-row {
   display: flex;
   align-items: center;
   gap: 15px;
   cursor: pointer;
 }
+
 .recent-img {
   width: 55px;
   height: 55px;
   object-fit: cover;
 }
+
 .recent-info {
   flex: 1;
 }
+
 .recent-title {
   font-size: 1rem;
   font-weight: 700;
   margin-bottom: 4px;
 }
+
 .recent-type {
   font-size: 0.85rem;
   color: #a0a0a0;
 }
 
-/* Grid */
 .mix-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 15px;
 }
+
 .mix-card {
   height: 110px;
   border-radius: 12px;
@@ -906,6 +938,7 @@ body {
   position: relative;
   overflow: hidden;
 }
+
 .mix-overlay {
   position: absolute;
   inset: 0;
@@ -915,16 +948,39 @@ body {
   align-items: center;
   transition: background 0.3s;
 }
+
 .mix-card:hover .mix-overlay {
   background: rgba(0, 0, 0, 0.2);
 }
+
 .mix-title {
   font-size: 1.1rem;
   font-weight: 700;
   text-align: center;
 }
 
-/* Mobile Tiny Screen */
+@media (min-width: 768px) {
+  .mix-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .mix-card {
+    height: 140px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .mix-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .mix-card {
+    height: 160px;
+  }
+  .mix-title {
+    font-size: 1.3rem;
+  }
+}
+
 @media (max-width: 300px) {
   .search-page-container {
     padding: 15px 10px;
@@ -950,51 +1006,52 @@ body {
   }
 }
 
-/* Library page */
+/* =========================================
+   LIBRARY PAGE
+========================================= */
 .lib-page-container {
   padding: 20px;
   color: white;
   max-width: 800px;
   margin: 0 auto;
 }
+
 .lib-main-title {
   font-size: 1.4rem;
   font-weight: 700;
   margin-bottom: 20px;
 }
 
-/* Hero Card */
 .lib-hero-card {
   height: 130px;
   border-radius: 12px;
-  background: url("https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=600&q=80")
-    center/cover;
+  background: url("https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=600&q=80") center/cover;
   margin-bottom: 20px;
   position: relative;
   overflow: hidden;
 }
+
 .lib-hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0.8) 0%,
-    rgba(0, 0, 0, 0.2) 100%
-  );
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.2) 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 20px;
 }
+
 .lib-hero-text p {
   font-size: 0.9rem;
   margin-bottom: 5px;
   font-weight: 600;
 }
+
 .lib-hero-text h3 {
   font-size: 1.8rem;
   font-weight: 800;
 }
+
 .lib-hero-play {
   width: 50px;
   height: 50px;
@@ -1007,12 +1064,12 @@ body {
   cursor: pointer;
 }
 
-/* Grid */
 .lib-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 15px;
 }
+
 .lib-card {
   height: 110px;
   border-radius: 12px;
@@ -1021,6 +1078,7 @@ body {
   position: relative;
   overflow: hidden;
 }
+
 .lib-card-overlay {
   position: absolute;
   inset: 0;
@@ -1029,6 +1087,7 @@ body {
   justify-content: center;
   align-items: center;
 }
+
 .lib-card-title {
   font-size: 1.2rem;
   font-weight: 800;
@@ -1037,7 +1096,31 @@ body {
   line-height: 1.2;
 }
 
-/* Mobile Tiny Screen */
+@media (min-width: 768px) {
+  .lib-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .lib-card {
+    height: 140px;
+  }
+  .lib-hero-card {
+    height: 180px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .lib-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .lib-card {
+    height: 160px;
+  }
+  .lib-card-title {
+    font-size: 1.3rem;
+  }
+}
+
 @media (max-width: 300px) {
   .lib-page-container {
     padding: 15px 10px;
@@ -1060,5 +1143,62 @@ body {
   }
   .lib-card-title {
     font-size: 1rem;
+  }
+}
+
+
+/* BottomNav.css */
+
+/* Isolated container class */
+.melo-bottom-nav {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background-color: #121212;
+  border-top: 1px solid #282828;
+  z-index: 1000;
+}
+
+/* Isolated base button class */
+.melo-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #b3b3b3;
+  transition: color 0.2s ease;
+  padding: 5px 10px;
+}
+
+/* Isolated text class */
+.melo-nav-text {
+  font-size: 0.75rem;
+  margin-top: 4px;
+}
+
+/* Isolated active state */
+.melo-nav-item.melo-active {
+  color: #ffffff;
+}
+
+.melo-nav-item:hover {
+  color: #ffffff;
+}
+
+/* Optional Desktop Tweak */
+@media screen and (min-width: 768px) {
+  .melo-bottom-nav {
+    max-width: 500px;
+    margin: 0 auto;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 20px 20px 0 0;
+    border: 1px solid #282828;
+    border-bottom: none;
   }
 }
