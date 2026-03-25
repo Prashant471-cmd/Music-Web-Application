@@ -24,12 +24,12 @@ const Welcome = () => {
             Favourite artist
           </h1>
 
-          <a href={loginUrl} className="buttons" style={{ textDecoration: "none", display: "inline-block" }}>
+          {/* <a href={loginUrl} className="buttons" style={{ textDecoration: "none", display: "inline-block" }}> */}
           {/*  <button className="buttons" onClick={() => navigate("/dashboard")}> */}
-            {/* <button className="buttons" onClick={() => navigate("/login")}> */}
-            <strong>Get started</strong>
-          {/* </button> */}
-          </a>
+            <button className="buttons" onClick={() => navigate("/login")}>
+              <strong>Get started</strong>
+            </button>
+          {/* </a> */}
         </div>
       </div>
     </>
