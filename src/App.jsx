@@ -27,7 +27,7 @@ function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/library" element={<Library />} />
           <Route path="/profile" element={<Profile />} />
-          
+
           {/* We will eventually make these dynamic (like /artist/:id), but static is perfect for testing the UI right now */}
           <Route path="/artist" element={<Artist />} />
           <Route path="/album" element={<Album />} />
