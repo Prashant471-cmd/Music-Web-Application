@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import Welcome from "./pages/Welcome";
-import Login from "./LoginSystem/LoginPage"; // Make sure the path to your Login file is correct
+import Login from "./LoginSystem/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import Layout from "./components/Layout";
 
@@ -10,11 +10,8 @@ import Profile from "./pages/Profile";
 import Artist from "./pages/Artist";
 import Album from "./pages/Album";
 import Song from "./pages/Song";
-import BottomNav from "./components/BottomNav";
-import Footer from "./components/Footer";
 
 import "./index.css";
-import Player from "./components/Player";
 
 // Helper component to protect routes
 const ProtectedRoute = ({ children }) => {
@@ -33,23 +30,16 @@ function App() {
         <Route path="/" element={<Welcome />} />
         <Route path="/login" element={<Login />} />
 
-        {/* Protected Routes inside the Layout (These get the bottom navbar) */}
-        {/* 2. FIXED THE NESTING HERE! */}
+        {/* Protected Routes inside the Layout */}
         <Route element={ <ProtectedRoute> <Layout /> </ProtectedRoute> }>
+          {/* These are actual pages the user sees inside the Layout */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/search" element={<Search />} />
           <Route path="/library" element={<Library />} />
           <Route path="/profile" element={<Profile />} />
-
-          {/* Static for testing the UI right now */}
           <Route path="/artist" element={<Artist />} />
           <Route path="/album" element={<Album />} />
           <Route path="/song" element={<Song />} />
-          <Route path="/bottomNav" element={<BottomNav />} />
-          <Route path="/footer" element={<Footer />} />
-          <Route path="/layout" element={<Layout />} />
-          <Route path="/player" element={<Player />} />
-
         </Route>
       </Routes>
     </BrowserRouter>

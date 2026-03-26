@@ -11,6 +11,13 @@ const Player = () => {
     const token = window.localStorage.getItem("access_token");
     if (!token) return;
 
+    // 1. INJECT THE SPOTIFY SDK SCRIPT dynamically
+    const script = document.createElement("script");
+    script.src = "https://sdk.scdn.co/spotify-player.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    // 2. INITIALIZE PLAYER ONCE THE SCRIPT IS READY
     window.onSpotifyWebPlaybackSDKReady = () => {
       const spotifyPlayer = new window.Spotify.Player({
         name: "Melo Web Player",
@@ -20,23 +27,29 @@ const Player = () => {
 
       setPlayer(spotifyPlayer);
 
+      // 3. LISTEN FOR READY STATE AND AUTO-TRANSFER
       spotifyPlayer.addListener("ready", ({ device_id }) => {
         console.log("Ready with Device ID", device_id);
         window.localStorage.setItem("device_id", device_id);
+        
+        // Force Spotify to switch to this newly created web device
+        transferPlaybackToMelo(device_id, token);
       });
 
       spotifyPlayer.addListener("not_ready", ({ device_id }) => {
         console.log("Device ID has gone offline", device_id);
       });
 
+      // Update state when track changes or pauses
       spotifyPlayer.addListener("player_state_changed", (state) => {
         if (!state) return;
 
         setTrack(state.track_window.current_track);
         setPaused(state.paused);
 
+        // Check if playback is currently active on this device
         spotifyPlayer.getCurrentState().then(state => { 
-          (!state) ? setActive(false) : setActive(true) 
+          (!state) ? setActive(false) : setActive(true);
         });
       });
 
@@ -44,14 +57,36 @@ const Player = () => {
     };
   }, []);
 
+  // 4. THE AUTO-TRANSFER FUNCTION
+  const transferPlaybackToMelo = async (deviceId, token) => {
+    try {
+      await fetch("https://api.spotify.com/v1/me/player", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          device_ids: [deviceId],
+          play: false, // Changes active device without auto-playing. Set to true if you want music to auto-play!
+        }),
+      });
+      console.log("Successfully transferred playback to Melo!");
+    } catch (error) {
+      console.error("Failed to transfer playback", error);
+    }
+  };
+
+  // 5. FALLBACK UI
   if (!is_active) { 
     return (
       <div className="player-container fallback">
-        <p>Open Spotify App & Transfer playback to "Melo Web Player" 🎧</p>
+        <p>Connecting to Melo Web Player... 🎧</p>
       </div>
     );
   }
 
+  // 6. MAIN PLAYER UI
   return (
     <div className="player-container">
       {/* Left side: Track Info */}

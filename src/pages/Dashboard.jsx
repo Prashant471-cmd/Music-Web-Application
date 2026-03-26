@@ -13,12 +13,13 @@ const Dashboard = () => {
     const token = window.localStorage.getItem("access_token");
     if (!token) return;
 
-    // Helper function to fetch data securely using the real Spotify API URL
+    // Helper function to fetch data securely using the REAL Spotify API URL
     const fetchSpotifyData = async (endpoint) => {
+      // FIXED: Using real api.spotify.com and added the missing $ for the variable
       const response = await fetch(`https://api.spotify.com/v1${endpoint}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!response.ok) throw new Error("Failed to fetch");
+      if (!response.ok) throw new Error("Failed to fetch data from " + endpoint);
       return response.json();
     };
 
@@ -57,12 +58,12 @@ const Dashboard = () => {
     const deviceId = window.localStorage.getItem("device_id"); // Saved from Player.jsx
 
     if (!token || !deviceId) {
-      alert("Please open your Spotify App and select 'Melo Web Player' from the devices list first!");
+      alert("Please wait for Melo Web Player to connect first!");
       return;
     }
 
     try {
-      // FIXED: Pointing to the correct Spotify player endpoint
+      // FIXED: Using real api.spotify.com and added the missing $ for deviceId
       await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
         method: "PUT",
         headers: {

@@ -1,27 +1,122 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import logo from "../assets/AppLogo.png";
 // import "./Song.css";
 
 const Song = () => {
+  const navigate = useNavigate();
+  const [currentTrack, setCurrentTrack] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  // 1. Function to check what is currently playing
+  const fetchCurrentlyPlaying = async () => {
+    const token = window.localStorage.getItem("access_token");
+    if (!token) return;
+
+    try {
+      // Using the OFFICIAL Spotify endpoint for current playback
+      const response = await fetch("https://api.spotify.com/v1/me/player", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.status === 204 || response.status > 400) {
+        return; // Nothing is playing or error
+      }
+
+      const data = await response.json();
+      
+      if (data.item) {
+        setCurrentTrack(data.item);
+        setIsPlaying(data.is_playing);
+        
+        // Calculate progress percentage for the bar
+        const progressPercent = (data.progress_ms / data.item.duration_ms) * 100;
+        setProgress(progressPercent);
+      }
+    } catch (error) {
+      console.error("Error fetching current track:", error);
+    }
+  };
+
+  // 2. Poll Spotify every 2 seconds to keep the progress bar & track synced
+  useEffect(() => {
+    fetchCurrentlyPlaying(); // Fetch immediately on load
+    const interval = setInterval(fetchCurrentlyPlaying, 2000); // Check every 2 seconds
+    return () => clearInterval(interval); // Cleanup when we leave the page
+  }, []);
+
+  // 3. Playback Control Functions
+  const handlePlayPause = async () => {
+    const token = window.localStorage.getItem("access_token");
+    const endpoint = isPlaying 
+      ? "https://api.spotify.com/v1/me/player/pause" 
+      : "https://api.spotify.com/v1/me/player/play";
+
+    await fetch(endpoint, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setIsPlaying(!isPlaying); // Optimistic UI update
+  };
+
+  const skipToNext = async () => {
+    const token = window.localStorage.getItem("access_token");
+    await fetch("https://api.spotify.com/v1/me/player/next", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setTimeout(fetchCurrentlyPlaying, 500); // Fetch new track after half a second
+  };
+
+  const skipToPrevious = async () => {
+    const token = window.localStorage.getItem("access_token");
+    await fetch("https://api.spotify.com/v1/me/player/previous", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setTimeout(fetchCurrentlyPlaying, 500);
+  };
+
+  // If nothing is playing, show a fallback message
+  if (!currentTrack) {
+    return (
+      <div className="song-container" style={{ color: "white", textAlign: "center", paddingTop: "50px" }}>
+        <h2>No music is playing right now!</h2>
+        <p>Go to the Dashboard or Search page to start a song.</p>
+        <button onClick={() => navigate("/dashboard")} style={{ marginTop: "20px", padding: "10px 20px" }}>Go Home</button>
+      </div>
+    );
+  }
+
   return (
     <div className="song-container">
       <header className="page-header">
-        <img src={logo} alt="Melo" className="header-logo" />
+        <img 
+          src={logo} 
+          alt="Melo" 
+          className="header-logo" 
+          onClick={() => navigate("/dashboard")}
+          style={{ cursor: "pointer" }}
+        />
         <div className="header-icons">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5,1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-5 4c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2z"/></svg>
           <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.67 0-5.06-1.1-6.8-2.84.14-1.9 4.14-2.96 6.8-2.96s6.66 1.06 6.8 2.96C17.06 18.9 14.67 20 12 20z"/></svg>
         </div>
       </header>
 
-      {/* Very Large Cover */}
+      {/* Real Cover Art */}
       <div className="now-playing-cover">
-        <img src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=600&q=80" alt="Timi Bhane" />
+        <img 
+          src={currentTrack.album.images[0]?.url || "https://via.placeholder.com/600"} 
+          alt={currentTrack.name} 
+        />
       </div>
 
       <div className="song-info-row">
         <div className="song-titles">
-          <h2 className="now-playing-title">Timi Bhane</h2>
-          <p className="now-playing-artist">Album by Albatross</p>
+          <h2 className="now-playing-title">{currentTrack.name}</h2>
+          <p className="now-playing-artist">{currentTrack.artists.map(a => a.name).join(", ")}</p>
         </div>
         <div className="song-actions">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
@@ -29,21 +124,40 @@ const Song = () => {
         </div>
       </div>
 
-      {/* Progress Bar */}
+      {/* Live Progress Bar */}
       <div className="progress-container">
         <div className="progress-bar-bg">
-          <div className="progress-bar-fill" style={{ width: '15%' }}></div>
-          <div className="progress-knob" style={{ left: '15%' }}></div>
+          <div className="progress-bar-fill" style={{ width: `${progress}%` }}></div>
+          <div className="progress-knob" style={{ left: `${progress}%` }}></div>
         </div>
       </div>
 
-      {/* Playback Controls */}
+      {/* Real Playback Controls */}
       <div className="playback-controls">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="#5c6bc0"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-        <div className="play-pause-btn">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        {/* Previous Button */}
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="#5c6bc0" onClick={skipToPrevious} style={{ cursor: "pointer" }}>
+          <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+        </svg>
+        
+        {/* Play/Pause Button */}
+        <div className="play-pause-btn" onClick={handlePlayPause} style={{ cursor: "pointer" }}>
+          {isPlaying ? (
+            // Pause Icon
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+            </svg>
+          ) : (
+            // Play Icon
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          )}
         </div>
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="#5c6bc0"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+
+        {/* Next Button */}
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="#5c6bc0" onClick={skipToNext} style={{ cursor: "pointer" }}>
+          <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+        </svg>
       </div>
     </div>
   );
