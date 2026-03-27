@@ -11,13 +11,7 @@ const Player = () => {
     const token = window.localStorage.getItem("access_token");
     if (!token) return;
 
-    if (!document.querySelector('script[src="https://sdk.scdn.co/spotify-player.js"]')) {
-      const script = document.createElement("script");
-      script.src = "https://sdk.scdn.co/spotify-player.js";
-      script.async = true;
-      document.body.appendChild(script);
-    }
-
+    // 1. DEFINE THE READY FUNCTION FIRST
     window.onSpotifyWebPlaybackSDKReady = () => {
       const spotifyPlayer = new window.Spotify.Player({
         name: "Melo Web Player",
@@ -50,10 +44,18 @@ const Player = () => {
       spotifyPlayer.connect();
     };
 
+    // 2. THEN INJECT THE SCRIPT
+    if (!document.querySelector('script[src="https://sdk.scdn.co/spotify-player.js"]')) {
+      const script = document.createElement("script");
+      script.src = "https://sdk.scdn.co/spotify-player.js";
+      script.async = true;
+      document.body.appendChild(script);
+    }
+
     return () => {
       if (player) player.disconnect();
     };
-  }, []);
+  }, []); // Run once on mount
 
   const transferPlaybackToMelo = async (deviceId, token) => {
     try {
@@ -74,7 +76,6 @@ const Player = () => {
       console.error("Failed to transfer playback", error);
     }
   };
-
 
   return (
     <div className="player-container" style={{ 
