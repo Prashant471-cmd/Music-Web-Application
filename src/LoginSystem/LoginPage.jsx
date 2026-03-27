@@ -126,6 +126,7 @@ const Login = () => {
       code_challenge_method: "S256",
       code_challenge: codeChallenge,
       redirect_uri: REDIRECT_URI,
+      show_dialog: "true", //Forces the Spotify login screen to appear!
     }).toString();
 
     window.location.href = authUrl.toString();

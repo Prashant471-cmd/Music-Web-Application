@@ -2,29 +2,23 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import Player from "./Player";
 import BottomNav from "./BottomNav";
-import Footer from "./Footer"; // <-- Don't forget to import your Footer!
+// We removed the Footer import entirely since BottomNav does everything better!
 
 const Layout = () => {
   return (
-    <div className="layout-wrapper" style={{ paddingBottom: "180px", position: "relative", minHeight: "100vh" }}>
+    <div className="layout-wrapper" style={{ paddingBottom: "140px", minHeight: "100vh" }}>
       
       {/* 1. THE MAIN PAGE CONTENT (Dashboard, Search, etc.) */}
       <div className="main-content">
         <Outlet /> 
       </div>
 
-      {/* 2. THE FIXED BOTTOM ELEMENTS (These stay on screen forever) */}
-      <div className="fixed-bottom-elements" style={{ position: "fixed", bottom: 0, left: 0, width: "100%", zIndex: 1000 }}>
-        
-        {/* The music player sits just above the navigation */}
-        <Player />
-        
-        {/* Depending on your design, you might only want one of these showing at a time, 
-            but here is how you render both! */}
-        <Footer />
-        <BottomNav />
-        
-      </div>
+      {/* 2. THE BOTTOM ELEMENTS */}
+      {/* Player is already set to fixed bottom: 60px in its own file */}
+      <Player />
+      
+      {/* BottomNav will sit at the very bottom */}
+      <BottomNav />
       
     </div>
   );

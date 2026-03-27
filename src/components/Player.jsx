@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 
 const Player = () => {
   const [player, setPlayer] = useState(undefined);
-  const [is_paused, setPaused] = useState(false);
+  const [is_paused, setPaused] = useState(true);
   const [is_active, setActive] = useState(false);
   const [current_track, setTrack] = useState(null);
 
@@ -11,13 +11,13 @@ const Player = () => {
     const token = window.localStorage.getItem("access_token");
     if (!token) return;
 
-    // 1. INJECT THE SPOTIFY SDK SCRIPT dynamically
-    const script = document.createElement("script");
-    script.src = "https://sdk.scdn.co/spotify-player.js";
-    script.async = true;
-    document.body.appendChild(script);
+    if (!document.querySelector('script[src="https://sdk.scdn.co/spotify-player.js"]')) {
+      const script = document.createElement("script");
+      script.src = "https://sdk.scdn.co/spotify-player.js";
+      script.async = true;
+      document.body.appendChild(script);
+    }
 
-    // 2. INITIALIZE PLAYER ONCE THE SCRIPT IS READY
     window.onSpotifyWebPlaybackSDKReady = () => {
       const spotifyPlayer = new window.Spotify.Player({
         name: "Melo Web Player",
@@ -27,12 +27,9 @@ const Player = () => {
 
       setPlayer(spotifyPlayer);
 
-      // 3. LISTEN FOR READY STATE AND AUTO-TRANSFER
       spotifyPlayer.addListener("ready", ({ device_id }) => {
         console.log("Ready with Device ID", device_id);
         window.localStorage.setItem("device_id", device_id);
-        
-        // Force Spotify to switch to this newly created web device
         transferPlaybackToMelo(device_id, token);
       });
 
@@ -40,26 +37,27 @@ const Player = () => {
         console.log("Device ID has gone offline", device_id);
       });
 
-      // Update state when track changes or pauses
       spotifyPlayer.addListener("player_state_changed", (state) => {
-        if (!state) return;
-
+        if (!state) {
+          setActive(false);
+          return;
+        }
         setTrack(state.track_window.current_track);
         setPaused(state.paused);
-
-        // Check if playback is currently active on this device
-        spotifyPlayer.getCurrentState().then(state => { 
-          (!state) ? setActive(false) : setActive(true);
-        });
+        setActive(true);
       });
 
       spotifyPlayer.connect();
     };
+
+    return () => {
+      if (player) player.disconnect();
+    };
   }, []);
 
-  // 4. THE AUTO-TRANSFER FUNCTION
   const transferPlaybackToMelo = async (deviceId, token) => {
     try {
+      // THE REAL SPOTIFY TRANSFER ENDPOINT
       await fetch("https://api.spotify.com/v1/me/player", {
         method: "PUT",
         headers: {
@@ -68,7 +66,7 @@ const Player = () => {
         },
         body: JSON.stringify({
           device_ids: [deviceId],
-          play: false, // Changes active device without auto-playing. Set to true if you want music to auto-play!
+          play: false, 
         }),
       });
       console.log("Successfully transferred playback to Melo!");
@@ -77,44 +75,63 @@ const Player = () => {
     }
   };
 
-  // 5. FALLBACK UI
-  if (!is_active) { 
-    return (
-      <div className="player-container fallback">
-        <p>Connecting to Melo Web Player... 🎧</p>
-      </div>
-    );
-  }
 
-  // 6. MAIN PLAYER UI
   return (
-    <div className="player-container">
-      {/* Left side: Track Info */}
-      <div className="now-playing">
-        {current_track?.album?.images?.[0]?.url && (
-          <img 
-            src={current_track.album.images[0].url} 
-            className="now-playing__cover" 
-            alt="album cover" 
-          />
+    <div className="player-container" style={{ 
+      display: "flex", 
+      alignItems: "center", 
+      justifyContent: "space-between", 
+      padding: "10px 20px", 
+      backgroundColor: "#181818", 
+      borderTop: "1px solid #282828",
+      color: "white",
+      position: "fixed",
+      bottom: "60px", /* Adjusted to sit just above your bottom nav bar */
+      left: 0,
+      width: "100%",
+      boxSizing: "border-box",
+      zIndex: 1000
+    }}>
+      
+      {/* Left side: Track Info (Shows empty state if no song is playing) */}
+      <div className="now-playing" style={{ display: "flex", alignItems: "center", width: "30%" }}>
+        {current_track ? (
+          <>
+            <img 
+              src={current_track.album.images[0].url} 
+              alt="album cover" 
+              style={{ width: "56px", height: "56px", borderRadius: "4px", marginRight: "15px" }}
+            />
+            <div>
+              <div style={{ fontWeight: "bold", fontSize: "14px", marginBottom: "4px" }}>{current_track.name}</div>
+              <div style={{ fontSize: "12px", color: "#b3b3b3" }}>{current_track.artists[0].name}</div>
+            </div>
+          </>
+        ) : (
+          <div style={{ fontSize: "14px", color: "#b3b3b3" }}>
+            {!is_active ? "Waiting for music..." : "No track playing"}
+          </div>
         )}
-        <div className="now-playing__info">
-          <div className="now-playing__name">{current_track?.name}</div>
-          <div className="now-playing__artist">{current_track?.artists?.[0]?.name}</div>
-        </div>
       </div>
 
       {/* Center: Controls */}
-      <div className="player-controls">
-        <button className="btn-spotify" onClick={() => player.previousTrack()}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
-          </svg>
+      <div className="player-controls" style={{ display: "flex", alignItems: "center", gap: "20px", width: "40%", justifyContent: "center" }}>
+        
+        {/* Previous Button */}
+        <button 
+          onClick={() => player && player.previousTrack()}
+          style={{ background: "none", border: "none", color: "#b3b3b3", cursor: "pointer" }}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
         </button>
 
-        <button className="btn-spotify play-btn" onClick={() => player.togglePlay()}>
+        {/* Play/Pause Button */}
+        <button 
+          onClick={() => player && player.togglePlay()}
+          style={{ background: "white", border: "none", color: "black", borderRadius: "50%", width: "40px", height: "40px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+        >
           {is_paused ? (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style={{marginLeft: "4px"}}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style={{ marginLeft: "4px" }}>
               <path d="M8 5v14l11-7z"/>
             </svg>
           ) : (
@@ -124,15 +141,17 @@ const Player = () => {
           )}
         </button>
 
-        <button className="btn-spotify" onClick={() => player.nextTrack()}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
-          </svg>
+        {/* Next Button */}
+        <button 
+          onClick={() => player && player.nextTrack()}
+          style={{ background: "none", border: "none", color: "#b3b3b3", cursor: "pointer" }}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
         </button>
       </div>
 
-      {/* Right side spacer for flexbox alignment */}
-      <div className="player-spacer"></div>
+      {/* Right side spacer to keep everything centered */}
+      <div style={{ width: "30%" }}></div>
     </div>
   );
 };

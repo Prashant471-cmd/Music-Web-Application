@@ -1,12 +1,37 @@
 import React, { useState, useEffect } from "react";
-// import "./Search.css"; // Your awesome custom CSS
-import logo from "../assets/AppLogo.png"; // Make sure this path is right!
+// import "./Search.css";
+import logo from "../assets/AppLogo.png";
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [categories, setCategories] = useState([]); // NEW: State for real categories
 
-  // Debounced Search Effect
+  // 1. Fetch Real Spotify Categories on Component Mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const token = window.localStorage.getItem("access_token");
+      if (!token) return;
+
+      try {
+        // Official Spotify endpoint for Browse Categories
+        const response = await fetch("https://api.spotify.com/v1/browse/categories?limit=20", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data.categories.items); // Save the real categories to state
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []); // Empty array means this only runs once when the page loads
+
+  // 2. Debounced Search Effect
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (searchQuery.trim() !== "") {
@@ -19,12 +44,13 @@ const Search = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
 
-  // Fetch from Spotify API - FIXED URL AND SYNTAX
+  // 3. Fetch Real Search Results
   const performSearch = async (query) => {
     const token = window.localStorage.getItem("access_token");
     if (!token) return;
 
     try {
+      // Upgraded to official API with the correct ${} syntax
       const response = await fetch(
         `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=10`,
         {
@@ -41,17 +67,18 @@ const Search = () => {
     }
   };
 
-  // Play Song Function - FIXED URL AND SYNTAX
+  // 4. Play Song Function
   const playSong = async (trackUri) => {
     const token = window.localStorage.getItem("access_token");
     const deviceId = window.localStorage.getItem("device_id");
 
     if (!token || !deviceId) {
-      alert("Please open your Spotify App and select 'Melo Web Player' first!");
+      alert("Please ensure the Melo Web Player is active!");
       return;
     }
 
     try {
+      // Upgraded to official API with the correct ${} syntax
       await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
         method: "PUT",
         headers: {
@@ -65,15 +92,11 @@ const Search = () => {
     }
   };
 
-  // Dummy categories for mix-grid when not searching
-  const browseCategories = [
-    { name: "Pop", color: "#8d67ab" },
-    { name: "Hip-Hop", color: "#ba5d07" },
-    { name: "Rock", color: "#e1118c" },
-    { name: "Indie", color: "#7358ff" },
-    { name: "Workout", color: "#777777" },
-    { name: "Chill", color: "#1e3264" },
-  ];
+  // Helper function to generate random background colors for category cards
+  const getRandomColor = () => {
+    const colors = ["#E13300", "#7358FF", "#1E3264", "#E8115B", "#8D67AB", "#148A08", "#E1118C", "#8C67AB"];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
 
   return (
     <div className="search-page-container">
@@ -107,13 +130,12 @@ const Search = () => {
         <div className="recent-list">
           <h3 style={{ marginBottom: "10px", fontSize: "1.2rem" }}>Top Results</h3>
           {searchResults.map((track) => (
-            <div key={track.id} className="recent-row" onClick={() => playSong(track.uri)}>
+            <div key={track.id} className="recent-row" onClick={() => playSong(track.uri)} style={{ cursor: "pointer" }}>
               <img src={track.album.images[0]?.url} alt={track.name} className="recent-img" />
               <div className="recent-info">
                 <div className="recent-title">{track.name}</div>
                 <div className="recent-type">Song • {track.artists[0]?.name}</div>
               </div>
-              {/* Play Icon */}
               <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
               </svg>
@@ -122,17 +144,44 @@ const Search = () => {
         </div>
       ) : (
         <>
-          <h3 style={{ marginBottom: "15px", fontSize: "1.2rem" }}>Browse all</h3>
+          <h3 style={{ marginBottom: "15px", fontSize: "1.2rem", marginTop: "20px" }}>Browse all</h3>
           <div className="mix-grid">
-            {browseCategories.map((cat, index) => (
+            {categories.map((cat) => (
               <div 
-                key={index} 
+                key={cat.id} 
                 className="mix-card" 
-                style={{ backgroundColor: cat.color }}
+                style={{ 
+                  backgroundColor: getRandomColor(),
+                  position: "relative", 
+                  overflow: "hidden",
+                  height: "120px", /* Make sure cards have height */
+                  borderRadius: "8px",
+                  cursor: "pointer"
+                }}
               >
-                <div className="mix-overlay">
-                  <span className="mix-title">{cat.name}</span>
+                {/* Text in top left */}
+                <div style={{ position: "absolute", top: "15px", left: "15px", zIndex: 2 }}>
+                  <span style={{ color: "white", fontWeight: "bold", fontSize: "1.1rem" }}>
+                    {cat.name}
+                  </span>
                 </div>
+                
+                {/* Image rotated in bottom right (Spotify Style) */}
+                {cat.icons[0] && (
+                  <img 
+                    src={cat.icons[0].url} 
+                    alt={cat.name} 
+                    style={{
+                      width: "80px",
+                      height: "80px",
+                      position: "absolute",
+                      bottom: "-10px",
+                      right: "-15px",
+                      transform: "rotate(25deg)",
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.5)"
+                    }}
+                  />
+                )}
               </div>
             ))}
           </div>
