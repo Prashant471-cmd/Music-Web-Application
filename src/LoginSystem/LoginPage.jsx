@@ -21,6 +21,7 @@ const SCOPES = [
   "user-read-playback-state",
   "user-modify-playback-state",
   "user-read-recently-played",
+  "user-top-read",
 ];
 
 // --- 1. PKCE Security Helper Functions ---

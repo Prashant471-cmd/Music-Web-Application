@@ -16,7 +16,7 @@ const Dashboard = () => {
     const token = window.localStorage.getItem("access_token");
     if (!token) return;
 
-    // FIXED: Added the missing $ before {endpoint}
+    // Fetch Helper - using the REAL Spotify API base URL!
     const fetchSpotifyData = async (endpoint) => {
       const response = await fetch(`https://api.spotify.com/v1${endpoint}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -45,18 +45,24 @@ const Dashboard = () => {
 
         // 3. Fetch Top Tracks (Popular Songs)
         const topData = await fetchSpotifyData("/me/top/tracks?limit=5&time_range=short_term");
-        if (topData && topData.items) {
-          setTopTracks(topData.items);
+        
+        // We define a default fallback song ID just in case the user has no top tracks.
+        // (This is the ID for Blinding Lights by The Weeknd)
+        let seedTrackId = "0VjIjW4GlUZAMYd2vXMi3b"; 
 
-          // 4. Generate "For You" Recommendations based on their top track!
-          if (topData.items.length > 0) {
-            const seedTrack = topData.items[0].id;
-            const recData = await fetchSpotifyData(`/recommendations?limit=5&seed_tracks=${seedTrack}`);
-            if (recData && recData.tracks) {
-              setRecommendations(recData.tracks);
-            }
-          }
+        if (topData && topData.items && topData.items.length > 0) {
+          setTopTracks(topData.items);
+          seedTrackId = topData.items[0].id; // Replace fallback with their actual top track
+        } else {
+          console.log("User has no top tracks! Using fallback seed for recommendations.");
         }
+
+        // 4. Generate "For You" Recommendations
+        const recData = await fetchSpotifyData(`/recommendations?limit=5&seed_tracks=${seedTrackId}`);
+        if (recData && recData.tracks) {
+          setRecommendations(recData.tracks);
+        }
+        
       } catch (error) {
         console.error("Error loading Spotify data:", error);
       }
@@ -77,14 +83,14 @@ const Dashboard = () => {
 
     try {
       if (playingUri === trackUri && isPlaying) {
-        // PAUSE (FIXED: Added missing $)
+        // PAUSE - using the REAL Spotify API endpoint!
         await fetch(`https://api.spotify.com/v1/me/player/pause?device_id=${deviceId}`, {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },
         });
         setIsPlaying(false);
       } else {
-        // PLAY (FIXED: Added missing $)
+        // PLAY - using the REAL Spotify API endpoint!
         await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
           method: "PUT",
           headers: {
