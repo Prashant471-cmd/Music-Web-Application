@@ -5,7 +5,7 @@ const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   
-  // NEW: State to track which song is playing and if it's paused
+  // State to track which song is playing and if it's paused
   const [playingUri, setPlayingUri] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -22,14 +22,15 @@ const Search = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
 
-  // Fetch from Spotify API
+  // Fetch from official Spotify Search API
   const performSearch = async (query) => {
     const token = window.localStorage.getItem("access_token");
     if (!token) return;
 
     try {
+      // FIXED: Official Spotify API endpoint with correct ${} syntax
       const response = await fetch(
-        `https://api.spotify.com/v1/search?q=$${encodeURIComponent(query)}&type=track&limit=10`,
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=10`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -44,7 +45,7 @@ const Search = () => {
     }
   };
 
-  // UPDATED: Play / Pause Toggle Function
+  // Play / Pause Toggle Function
   const handlePlayPause = async (trackUri) => {
     const token = window.localStorage.getItem("access_token");
     const deviceId = window.localStorage.getItem("device_id");
@@ -57,15 +58,15 @@ const Search = () => {
     try {
       // If we clicked the song that is ALREADY playing...
       if (playingUri === trackUri && isPlaying) {
-        // PAUSE IT
-        await fetch(`https://api.spotify.com/v1/browse/categories?limit=20{deviceId}`, {
+        // PAUSE IT 
+        await fetch(`https://api.spotify.com/v1/me/player/pause?device_id=${deviceId}`, {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },
         });
         setIsPlaying(false); // Update UI to show Play icon
       } else {
-        // PLAY IT (Either a new song, or resuming the paused song)
-        await fetch(`https://api.spotify.com/v1/me/player/play?device_id=$${deviceId}`, {
+        // PLAY IT
+        await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -134,7 +135,7 @@ const Search = () => {
                 <div className="recent-type">Song • {track.artists[0]?.name}</div>
               </div>
               
-              {/* NEW: Dynamically swap the Play and Pause icons */}
+              {/* Dynamically swap the Play and Pause icons */}
               {playingUri === track.uri && isPlaying ? (
                 // Pause Icon
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="white">

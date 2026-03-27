@@ -16,7 +16,7 @@ const Dashboard = () => {
     const token = window.localStorage.getItem("access_token");
     if (!token) return;
 
-    // Helper function using the OFFICIAL Spotify API URL
+    // FIXED: Added the missing $ before {endpoint}
     const fetchSpotifyData = async (endpoint) => {
       const response = await fetch(`https://api.spotify.com/v1${endpoint}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -77,14 +77,14 @@ const Dashboard = () => {
 
     try {
       if (playingUri === trackUri && isPlaying) {
-        // PAUSE
+        // PAUSE (FIXED: Added missing $)
         await fetch(`https://api.spotify.com/v1/me/player/pause?device_id=${deviceId}`, {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },
         });
         setIsPlaying(false);
       } else {
-        // PLAY
+        // PLAY (FIXED: Added missing $)
         await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
           method: "PUT",
           headers: {
