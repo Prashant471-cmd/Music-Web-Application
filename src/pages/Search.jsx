@@ -1,37 +1,11 @@
 import React, { useState, useEffect } from "react";
-// import "./Search.css";
-import logo from "../assets/AppLogo.png";
+import logo from "../assets/AppLogo.png"; 
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [categories, setCategories] = useState([]); // NEW: State for real categories
 
-  // 1. Fetch Real Spotify Categories on Component Mount
-  useEffect(() => {
-    const fetchCategories = async () => {
-      const token = window.localStorage.getItem("access_token");
-      if (!token) return;
-
-      try {
-        // Official Spotify endpoint for Browse Categories
-        const response = await fetch("https://api.spotify.com/v1/browse/categories?limit=20", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setCategories(data.categories.items); // Save the real categories to state
-        }
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-
-    fetchCategories();
-  }, []); // Empty array means this only runs once when the page loads
-
-  // 2. Debounced Search Effect
+  // Debounced Search Effect
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (searchQuery.trim() !== "") {
@@ -44,15 +18,14 @@ const Search = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
 
-  // 3. Fetch Real Search Results
+  // Fetch from Spotify API
   const performSearch = async (query) => {
     const token = window.localStorage.getItem("access_token");
     if (!token) return;
 
     try {
-      // Upgraded to official API with the correct ${} syntax
       const response = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=10`,
+        `https://api.spotify.com/v1/search?q=$${encodeURIComponent(query)}&type=track&limit=10`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -67,19 +40,18 @@ const Search = () => {
     }
   };
 
-  // 4. Play Song Function
+  // Play Song Function
   const playSong = async (trackUri) => {
     const token = window.localStorage.getItem("access_token");
     const deviceId = window.localStorage.getItem("device_id");
 
     if (!token || !deviceId) {
-      alert("Please ensure the Melo Web Player is active!");
+      alert("Please open your Spotify App and select 'Melo Web Player' first!");
       return;
     }
 
     try {
-      // Upgraded to official API with the correct ${} syntax
-      await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+      await fetch(`https://api.spotify.com/v1/me/player/play?device_id=$${deviceId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -92,11 +64,22 @@ const Search = () => {
     }
   };
 
-  // Helper function to generate random background colors for category cards
-  const getRandomColor = () => {
-    const colors = ["#E13300", "#7358FF", "#1E3264", "#E8115B", "#8D67AB", "#148A08", "#E1118C", "#8C67AB"];
-    return colors[Math.floor(Math.random() * colors.length)];
+  // NEW: Function to handle clicking a category box
+  const handleCategoryClick = (categoryName) => {
+    // This automatically types the category name into the search bar, 
+    // which triggers your useEffect and fetches the songs!
+    setSearchQuery(categoryName);
   };
+
+  // Updated categories with real images!
+  const browseCategories = [
+    { name: "Pop", color: "#8d67ab", img: "https://i.scdn.co/image/ab67706f00000002b70e0223f544b1faa3e95204" },
+    { name: "Hip-Hop", color: "#ba5d07", img: "https://i.scdn.co/image/ab67706f000000029bb6af539d072de34548d15c" },
+    { name: "Rock", color: "#e1118c", img: "https://i.scdn.co/image/ab67706f00000002fe6d8d1019d5b302213e3730" },
+    { name: "Indie", color: "#7358ff", img: "https://i.scdn.co/image/ab67706f000000025f7327d3fdc71af27917adba" },
+    { name: "Workout", color: "#777777", img: "https://i.scdn.co/image/ab67706f000000029249b35f23fb596b6f006a15" },
+    { name: "Chill", color: "#1e3264", img: "https://i.scdn.co/image/ab67706f00000002c414e7daa34e16d44a2dfeb4" },
+  ];
 
   return (
     <div className="search-page-container">
@@ -146,42 +129,47 @@ const Search = () => {
         <>
           <h3 style={{ marginBottom: "15px", fontSize: "1.2rem", marginTop: "20px" }}>Browse all</h3>
           <div className="mix-grid">
-            {categories.map((cat) => (
+            {browseCategories.map((cat, index) => (
               <div 
-                key={cat.id} 
+                key={index} 
                 className="mix-card" 
                 style={{ 
-                  backgroundColor: getRandomColor(),
-                  position: "relative", 
-                  overflow: "hidden",
-                  height: "120px", /* Make sure cards have height */
+                  backgroundColor: cat.color,
+                  position: "relative", /* Needed to position the image inside */
+                  overflow: "hidden", /* Keeps the rotated image from spilling out */
+                  height: "120px", 
                   borderRadius: "8px",
                   cursor: "pointer"
                 }}
+                onClick={() => handleCategoryClick(cat.name)} /* THE CLICK LISTENER */
               >
                 {/* Text in top left */}
-                <div style={{ position: "absolute", top: "15px", left: "15px", zIndex: 2 }}>
-                  <span style={{ color: "white", fontWeight: "bold", fontSize: "1.1rem" }}>
-                    {cat.name}
-                  </span>
-                </div>
-                
-                {/* Image rotated in bottom right (Spotify Style) */}
-                {cat.icons[0] && (
-                  <img 
-                    src={cat.icons[0].url} 
-                    alt={cat.name} 
-                    style={{
-                      width: "80px",
-                      height: "80px",
-                      position: "absolute",
-                      bottom: "-10px",
-                      right: "-15px",
-                      transform: "rotate(25deg)",
-                      boxShadow: "0 2px 4px rgba(0,0,0,0.5)"
-                    }}
-                  />
-                )}
+                <span style={{ 
+                  position: "absolute", 
+                  top: "15px", 
+                  left: "15px", 
+                  color: "white", 
+                  fontWeight: "bold", 
+                  fontSize: "1.2rem",
+                  zIndex: 2 
+                }}>
+                  {cat.name}
+                </span>
+
+                {/* Tilted image in bottom right */}
+                <img 
+                  src={cat.img} 
+                  alt={cat.name} 
+                  style={{
+                    width: "80px",
+                    height: "80px",
+                    position: "absolute",
+                    bottom: "-10px",
+                    right: "-15px",
+                    transform: "rotate(25deg)", /* The classic Spotify tilt! */
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.5)"
+                  }}
+                />
               </div>
             ))}
           </div>
