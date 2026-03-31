@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/AppLogo.png";
 import getStartPage from "../assets/LoginPic.png";
-import { loginUrl } from "../Spotify";
+// import { loginUrl } from "../Spotify";
 
 const Welcome = () => {
   const navigate = useNavigate();
