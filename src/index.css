@@ -1176,8 +1176,9 @@ body {
   background-color: #121212; /* Dark Spotify background */
   z-index: 1000;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
+  box-sizing: border-box;
 }
 
 /* Isolated base button class */
@@ -1206,7 +1207,7 @@ body {
   color: #ffffff;
 }
 
-/* Optional Desktop Tweak */
+/* Optional Desktop Tweak
 @media screen and (min-width: 768px) {
   .melo-bottom-nav {
     max-width: 100%;
@@ -1217,4 +1218,4 @@ body {
     border: 1px solid #282828;
     border-bottom: none;
   }
-}
+} */
