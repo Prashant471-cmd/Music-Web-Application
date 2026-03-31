@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import getStartPage from "../assets/LoginPic.png";
 import logo from "../assets/AppLogo.png";
 
-const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID || "ff731e02bc72489dbd8387e40d5d29f0";
+const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID ;
 // Warning: If using placeholder CLIENT_ID, get your own from https://developer.spotify.com
 // This will automatically grab your live domain and add /login to it
 // Result: https://melo.prashantdeuja.com.np/login
