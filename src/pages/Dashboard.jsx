@@ -44,7 +44,7 @@ const Dashboard = () => {
         }
 
         // 3. Fetch Top Tracks (Popular Songs)
-        const topData = await fetchSpotifyData("/me/top/tracks?limit=5&time_range=short_term");
+        const topData = await fetchSpotifyData("/me/top/tracks?limit=15&time_range=short_term");
         
         // We define a default fallback song ID just in case the user has no top tracks.
         // (This is the ID for Blinding Lights by The Weeknd)
@@ -58,7 +58,7 @@ const Dashboard = () => {
         }
 
         // 4. Generate "For You" Recommendations
-        const recData = await fetchSpotifyData(`/recommendations?limit=5&seed_tracks=${seedTrackId}`);
+        const recData = await fetchSpotifyData(`/recommendations?limit=15&seed_tracks=${seedTrackId}`);
         if (recData && recData.tracks) {
           setRecommendations(recData.tracks);
         }
@@ -72,7 +72,7 @@ const Dashboard = () => {
   }, []);
 
   // Play / Pause Toggle Function
-  const handlePlayPause = async (trackUri) => {
+  const handlePlayPause = async (trackUri, trackList = []) => {
     const token = window.localStorage.getItem("access_token");
     const deviceId = window.localStorage.getItem("device_id");
 
@@ -90,6 +90,14 @@ const Dashboard = () => {
         });
         setIsPlaying(false);
       } else {
+
+        // 1. Extract all the URIs from the list of tracks we passed in
+        const allUris = trackList.map((t) => t.uri);
+
+        // 2. If for some reason we didn't pass a list, just play the single track
+        const urisToPlay = allUris.length > 0 ? allUris : [trackUri];
+
+
         // PLAY - using the REAL Spotify API endpoint!
         await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
           method: "PUT",
@@ -97,7 +105,9 @@ const Dashboard = () => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ uris: [trackUri] }),
+          body: JSON.stringify({ uris: urisToPlay,  //Give spotify the whole queue
+                               offset: { uri: trackUri} //Tell spotify exactly where to start
+                              }),
         });
         setPlayingUri(trackUri);
         setIsPlaying(true);
@@ -147,7 +157,7 @@ const Dashboard = () => {
           </div>
           <div className="scroll-row" style={{ display: "flex", gap: "15px", overflowX: "auto", paddingBottom: "10px" }}>
             {recentlyPlayed.map((track) => (
-              <div key={track.id} onClick={() => handlePlayPause(track.uri)} style={{ flexShrink: 0, cursor: "pointer", position: "relative" }}>
+              <div key={track.id} onClick={() => handlePlayPause(track.uri, recentlyPlayed)} style={{ flexShrink: 0, cursor: "pointer", position: "relative" }}>
                 <img 
                   src={track.album.images[0]?.url} 
                   alt={track.name} 
@@ -166,7 +176,7 @@ const Dashboard = () => {
           </div>
           <div className="scroll-row" style={{ display: "flex", gap: "15px", overflowX: "auto", paddingBottom: "10px" }}>
             {recommendations.map((track) => (
-              <div key={track.id} onClick={() => handlePlayPause(track.uri)} style={{ flexShrink: 0, cursor: "pointer" }}>
+              <div key={track.id} onClick={() => handlePlayPause(track.uri, recommendations)} style={{ flexShrink: 0, cursor: "pointer" }}>
                 <img 
                   src={track.album.images[0]?.url} 
                   alt={track.name} 
@@ -184,7 +194,7 @@ const Dashboard = () => {
           </h3>
           <div className="popular-list" style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
             {topTracks.map((track) => (
-              <div key={track.id} className="song-row" onClick={() => handlePlayPause(track.uri)} style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+              <div key={track.id} className="song-row" onClick={() => handlePlayPause(track.uri, topTracks)} style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
                 <img
                   src={track.album.images[0]?.url}
                   alt={track.name}
