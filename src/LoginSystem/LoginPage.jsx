@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import getStartPage from "../assets/LoginPic.png";
 import logo from "../assets/AppLogo.png";
 
-const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID ;
+const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
 // Warning: If using placeholder CLIENT_ID, get your own from https://developer.spotify.com
 // This will automatically grab your live domain and add /login to it
 // Result: https://melo.prashantdeuja.com.np/login
@@ -52,54 +52,62 @@ const Login = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const exchangeToken = useCallback(async (code) => {
-    const codeVerifier = window.localStorage.getItem("code_verifier");
+  const exchangeToken = useCallback(
+    async (code) => {
+      const codeVerifier = window.localStorage.getItem("code_verifier");
 
-    const payload = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        client_id: CLIENT_ID,
-        grant_type: "authorization_code",
-        code: code,
-        redirect_uri: REDIRECT_URI,
-        code_verifier: codeVerifier,
-      }),
-    };
+      const payload = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          client_id: CLIENT_ID,
+          grant_type: "authorization_code",
+          code: code,
+          redirect_uri: REDIRECT_URI,
+          code_verifier: codeVerifier,
+        }),
+      };
 
-    try {
-      const response = await fetch(TOKEN_ENDPOINT, payload);
+      try {
+        const response = await fetch(TOKEN_ENDPOINT, payload);
 
-      // Check if response is successful
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error_description || "Login failed. Please try again.");
+        // Check if response is successful
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(
+            errorData.error_description || "Login failed. Please try again.",
+          );
+        }
+
+        const data = await response.json();
+
+        // Check if access token exists
+        if (data.access_token) {
+          window.localStorage.setItem("access_token", data.access_token);
+          setToken(data.access_token);
+          setError(""); // Clear any previous errors
+          window.history.replaceState({}, document.title, "/login"); // Clean the URL
+          navigate("/dashboard"); // Teleport to Dashboard!
+        } else if (data.error) {
+          throw new Error(
+            data.error_description || "Unable to get access token",
+          );
+        } else {
+          throw new Error("No access token received from Spotify");
+        }
+      } catch (error) {
+        const errorMessage =
+          error.message || "An error occurred during login. Please try again.";
+        setError(errorMessage);
+        if (process.env.NODE_ENV === "development") {
+          console.error("Error exchanging token", error);
+        }
       }
-
-      const data = await response.json();
-
-      // Check if access token exists
-      if (data.access_token) {
-        window.localStorage.setItem("access_token", data.access_token);
-        setToken(data.access_token);
-        setError(""); // Clear any previous errors
-        window.history.replaceState({}, document.title, "/login"); // Clean the URL
-        navigate("/dashboard"); // Teleport to Dashboard!
-      } else if (data.error) {
-        throw new Error(data.error_description || "Unable to get access token");
-      } else {
-        throw new Error("No access token received from Spotify");
-      }
-    } catch (error) {
-      const errorMessage = error.message || "An error occurred during login. Please try again.";
-      setError(errorMessage);
-      if (process.env.NODE_ENV === "development") {
-        console.error("Error exchanging token", error);
-      }
-    }
-  }, [navigate]);
+    },
+    [navigate],
+  );
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -155,7 +163,13 @@ const Login = () => {
           all your favorite artists.
         </h1>
         {error && (
-          <div style={{ color: "#ff6b6b", marginBottom: "20px", fontSize: "0.9rem" }}>
+          <div
+            style={{
+              color: "#ff6b6b",
+              marginBottom: "20px",
+              fontSize: "0.9rem",
+            }}
+          >
             {error}
           </div>
         )}
