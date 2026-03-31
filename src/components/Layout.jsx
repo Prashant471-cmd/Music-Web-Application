@@ -15,8 +15,9 @@ const Layout = () => {
       className="layout-wrapper" 
       style={{ 
         // Dynamically remove the bottom padding if we are on the Song page!
-        paddingBottom: isSongPage ? "0px" : "140px", 
-        minHeight: "100vh" 
+        paddingBottom: isSongPage ? "60px" : "140px", 
+        minHeight: "100vh",
+        position: "relative" 
       }}
     >
       
@@ -27,12 +28,10 @@ const Layout = () => {
 
       {/* 2. THE BOTTOM ELEMENTS */}
       {/* Only show the Player and BottomNav if we are NOT on the Song page */}
-      {!isSongPage && (
-        <>
-          <Player />
-          <BottomNav />
-        </>
-      )}
+      {!isSongPage && <Player/> }
+        
+      {/* Always visible   */}
+      <BottomNav /> 
       
     </div>
   );

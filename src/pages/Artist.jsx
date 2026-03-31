@@ -130,7 +130,16 @@ const Artist = () => {
           position: "relative"
         }}
       >
-        <div className="hero-overlay" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)" }}></div>
+        <div className="hero-overlay" 
+          style={{ 
+            position: "absolute", 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            backgroundColor: "rgba(0,0,0,0.5)" 
+          }}>
+        </div>
         
         <header className="page-header transparent" style={{ position: "relative", zIndex: 10 }}>
           <img 
@@ -146,16 +155,29 @@ const Artist = () => {
           </div>
         </header>
         
-        <div className="artist-hero-info" style={{ position: "relative", zIndex: 10 }}>
-          <h1 className="artist-name">{artist?.name || "Unknown Artist"}</h1>
+        <div className="artist-hero-info" 
+          style={{ position: "relative", zIndex: 10 }}>
+
+          <h1 className="artist-name">  
+            {artist?.name || "Unknown Artist"}
+          </h1>
+
           {/* OPTIONAL CHAINING added here to prevent 'total' undefined crash */}
-          <p className="monthly-listeners">{artist?.followers?.total?.toLocaleString() || "0"} followers</p>
+          <p className="monthly-listeners">
+            {artist?.followers?.total?.toLocaleString() || "0"} 
+            followers
+          </p>
+
           <div className="artist-actions">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
             <span style={{ fontSize: '24px', fontWeight: 'bold' }}>...</span>
           </div>
+
           {/* Main Play Button for the Artist */}
-          <div className="big-play-btn" onClick={playArtist} style={{ cursor: "pointer" }}>
+          <div className="big-play-btn" 
+            onClick={playArtist} 
+            style={{ cursor: "pointer" }}>
+              
             <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
           </div>
         </div>
