@@ -9,11 +9,11 @@ const Song = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   
-  // NEW: State to hold the raw millisecond times
+  // State to hold the raw millisecond times
   const [progressMs, setProgressMs] = useState(0);
   const [durationMs, setDurationMs] = useState(0);
 
-  // NEW: Helper function to convert milliseconds to m:ss format
+  // Helper function to convert milliseconds to m:ss format
   const formatTime = (ms) => {
     if (!ms) return "0:00";
     const totalSeconds = Math.floor(ms / 1000);
@@ -28,8 +28,8 @@ const Song = () => {
     if (!token) return;
 
     try {
-      // Using the OFFICIAL Spotify endpoint for current playback
-      const response = await fetch("https://api.spotify.com/v1/me/player", {
+      // REAL SPOTIFY ENDPOINT: Get Currently Playing
+      const response = await fetch("https://api.spotify.com/v1/me/player/currently-playing", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -56,14 +56,14 @@ const Song = () => {
     }
   };
 
-  // 2. Poll Spotify every 2 seconds to keep the progress bar & track synced
+  // 2. Poll Spotify every 1 second for smoother syncing
   useEffect(() => {
-    fetchCurrentlyPlaying(); // Fetch immediately on load
-    const interval = setInterval(fetchCurrentlyPlaying, 2000); // Check every 2 seconds
-    return () => clearInterval(interval); // Cleanup when we leave the page
+    fetchCurrentlyPlaying(); 
+    const interval = setInterval(fetchCurrentlyPlaying, 1000); 
+    return () => clearInterval(interval); 
   }, []);
 
-  // 3. Playback Control Functions
+  // 3. Playback Control Functions (Using REAL Spotify Endpoints)
   const handlePlayPause = async () => {
     const token = window.localStorage.getItem("access_token");
     const endpoint = isPlaying 
@@ -74,7 +74,7 @@ const Song = () => {
       method: "PUT",
       headers: { Authorization: `Bearer ${token}` },
     });
-    setIsPlaying(!isPlaying); // Optimistic UI update
+    setIsPlaying(!isPlaying); 
   };
 
   const skipToNext = async () => {
@@ -83,7 +83,7 @@ const Song = () => {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
     });
-    setTimeout(fetchCurrentlyPlaying, 500); // Fetch new track after half a second
+    setTimeout(fetchCurrentlyPlaying, 500); 
   };
 
   const skipToPrevious = async () => {
@@ -93,6 +93,28 @@ const Song = () => {
       headers: { Authorization: `Bearer ${token}` },
     });
     setTimeout(fetchCurrentlyPlaying, 500);
+  };
+
+  // 4. NEW: Seek Function to let you click on the progress bar!
+  const handleSeek = async (e) => {
+    if (!durationMs) return;
+    
+    // Calculate where the user clicked on the bar
+    const progressBar = e.currentTarget;
+    const clickPosition = e.clientX - progressBar.getBoundingClientRect().left;
+    const clickPercent = clickPosition / progressBar.offsetWidth;
+    const newPositionMs = Math.floor(clickPercent * durationMs);
+
+    // Update UI immediately so it feels fast
+    setProgress(clickPercent * 100);
+    setProgressMs(newPositionMs);
+
+    // REAL SPOTIFY ENDPOINT: Tell Spotify to jump to that exact time
+    const token = window.localStorage.getItem("access_token");
+    await fetch(`https://api.spotify.com/v1/me/player/seek?position_ms=${newPositionMs}`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+    });
   };
 
   // If nothing is playing, show a fallback message
@@ -141,14 +163,16 @@ const Song = () => {
         </div>
       </div>
 
-      {/* Live Progress Bar */}
+      {/* Live Progress Bar with Click-to-Seek */}
       <div className="progress-container">
-        <div className="progress-bar-bg">
-          <div className="progress-bar-fill" style={{ width: `${progress}%` }}></div>
-          <div className="progress-knob" style={{ left: `${progress}%` }}></div>
+        {/* ADDED onClick={handleSeek} and cursor pointer */}
+        <div className="progress-bar-bg" onClick={handleSeek} style={{ cursor: "pointer" }}>
+          {/* ADDED pointerEvents: 'none' so the click registers on the background */}
+          <div className="progress-bar-fill" style={{ width: `${progress}%`, pointerEvents: "none" }}></div>
+          <div className="progress-knob" style={{ left: `${progress}%`, pointerEvents: "none" }}></div>
         </div>
         
-        {/* NEW: Dynamic Timestamps */}
+        {/* Dynamic Timestamps */}
         <div className="time-info">
           <span>{formatTime(progressMs)}</span>
           <span>{formatTime(durationMs)}</span>

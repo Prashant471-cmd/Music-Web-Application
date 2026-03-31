@@ -34,7 +34,7 @@ const Artist = () => {
           setArtist(artistData);
         }
 
-        // 2. Fetch Real Artist Top Tracks
+        // 2. Fetch Real Artist Top Tracks (market=US fixes the 403 error)
         const tracksRes = await fetch(`https://api.spotify.com/v1/artists/${id}/top-tracks?market=US`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -124,7 +124,7 @@ const Artist = () => {
       <div 
         className="artist-hero" 
         style={{ 
-          backgroundImage: `url(${artist.images[0]?.url})`,
+          backgroundImage: `url(${artist?.images?.[0]?.url || "https://via.placeholder.com/800"})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           position: "relative"
@@ -147,8 +147,9 @@ const Artist = () => {
         </header>
         
         <div className="artist-hero-info" style={{ position: "relative", zIndex: 10 }}>
-          <h1 className="artist-name">{artist.name}</h1>
-          <p className="monthly-listeners">{artist.followers.total.toLocaleString()} followers</p>
+          <h1 className="artist-name">{artist?.name || "Unknown Artist"}</h1>
+          {/* OPTIONAL CHAINING added here to prevent 'total' undefined crash */}
+          <p className="monthly-listeners">{artist?.followers?.total?.toLocaleString() || "0"} followers</p>
           <div className="artist-actions">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
             <span style={{ fontSize: '24px', fontWeight: 'bold' }}>...</span>
@@ -170,19 +171,18 @@ const Artist = () => {
                 key={track.id} 
                 className="list-row" 
                 style={{ cursor: "pointer" }}
-                onClick={() => handlePlayPause(track.uri)} // <-- Added onClick here!
+                onClick={() => handlePlayPause(track.uri)} 
               >
                 <img 
-                  src={track.album.images[2]?.url || track.album.images[0]?.url} 
+                  src={track?.album?.images?.[2]?.url || track?.album?.images?.[0]?.url || "https://via.placeholder.com/50"} 
                   alt={track.name} 
                   className="list-image" 
                 />
                 <div className="list-text">
-                  {/* Title turns green if it's currently playing */}
                   <div className="list-title" style={{ color: playingUri === track.uri ? "#1db954" : "white" }}>
                     {track.name}
                   </div>
-                  <div className="list-subtitle">{track.artists.map(a => a.name).join(", ")}</div>
+                  <div className="list-subtitle">{track?.artists?.map(a => a.name).join(", ")}</div>
                 </div>
                 
                 {/* Dynamically Swap Heart/Play/Pause Icons */}

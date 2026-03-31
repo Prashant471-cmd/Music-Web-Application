@@ -1,12 +1,24 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Player from "./Player";
 import BottomNav from "./BottomNav";
-// We removed the Footer import entirely since BottomNav does everything better!
 
 const Layout = () => {
+  // 1. Get the current URL path
+  const location = useLocation();
+
+  // 2. Check if the user is on the full-screen Song page
+  const isSongPage = location.pathname.startsWith("/song");
+
   return (
-    <div className="layout-wrapper" style={{ paddingBottom: "140px", minHeight: "100vh" }}>
+    <div 
+      className="layout-wrapper" 
+      style={{ 
+        // Dynamically remove the bottom padding if we are on the Song page!
+        paddingBottom: isSongPage ? "0px" : "140px", 
+        minHeight: "100vh" 
+      }}
+    >
       
       {/* 1. THE MAIN PAGE CONTENT (Dashboard, Search, etc.) */}
       <div className="main-content">
@@ -14,11 +26,13 @@ const Layout = () => {
       </div>
 
       {/* 2. THE BOTTOM ELEMENTS */}
-      {/* Player is already set to fixed bottom: 60px in its own file */}
-      <Player />
-      
-      {/* BottomNav will sit at the very bottom */}
-      <BottomNav />
+      {/* Only show the Player and BottomNav if we are NOT on the Song page */}
+      {!isSongPage && (
+        <>
+          <Player />
+          <BottomNav />
+        </>
+      )}
       
     </div>
   );
