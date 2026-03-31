@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import logo from "../assets/AppLogo.png"; 
+import { useNavigate } from "react-router-dom";
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const navigate = useNavigate();
   
-  // State to track which song is playing and if it's paused
-  const [playingUri, setPlayingUri] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-
   // Debounced Search Effect
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -22,15 +20,15 @@ const Search = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
 
-  // Fetch from official Spotify Search API
+  // Fetch from official Spotify Search API for Tracks, Artists, AND Albums
   const performSearch = async (query) => {
     const token = window.localStorage.getItem("access_token");
     if (!token) return;
 
     try {
-      // FIXED: Official Spotify API endpoint with correct ${} syntax
+      // Added type=track,artist,album so we get all three!
       const response = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=10`,
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track,artist,album&limit=4`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -39,46 +37,30 @@ const Search = () => {
       if (!response.ok) throw new Error("Failed to fetch search results");
       
       const data = await response.json();
-      setSearchResults(data.tracks?.items || []);
+      
+      // Combine Tracks, Artists, and Albums into one single list
+      const combinedResults = [
+        ...(data.artists?.items || []).map(item => ({ ...item, searchType: "Artist" })),
+        ...(data.albums?.items || []).map(item => ({ ...item, searchType: "Album" })),
+        ...(data.tracks?.items || []).map(item => ({ ...item, searchType: "Song" }))
+      ];
+
+      // Keep the top 8 results so the list isn't too long
+      setSearchResults(combinedResults.slice(0, 8));
     } catch (error) {
       console.error("Error searching:", error);
     }
   };
 
-  // Play / Pause Toggle Function
-  const handlePlayPause = async (trackUri) => {
-    const token = window.localStorage.getItem("access_token");
-    const deviceId = window.localStorage.getItem("device_id");
-
-    if (!token || !deviceId) {
-      alert("Please open your Spotify App and select 'Melo Web Player' first!");
-      return;
-    }
-
-    try {
-      // If we clicked the song that is ALREADY playing...
-      if (playingUri === trackUri && isPlaying) {
-        // PAUSE IT 
-        await fetch(`https://api.spotify.com/v1/me/player/pause?device_id=${deviceId}`, {
-          method: "PUT",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setIsPlaying(false); // Update UI to show Play icon
-      } else {
-        // PLAY IT
-        await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ uris: [trackUri] }),
-        });
-        setPlayingUri(trackUri); // Remember which song is playing
-        setIsPlaying(true);      // Update UI to show Pause icon
-      }
-    } catch (error) {
-      console.error("Error toggling playback:", error);
+  // Navigate to different pages based on what the user clicked
+  const handleResultClick = (item) => {
+    if (item.searchType === "Artist") {
+      navigate(`/artist/${item.id}`);
+    } else if (item.searchType === "Album") {
+      navigate(`/album/${item.id}`);
+    } else if (item.searchType === "Song") {
+      // If it's a song, we route to the album it belongs to
+      navigate(`/album/${item.album.id}`); 
     }
   };
 
@@ -122,34 +104,50 @@ const Search = () => {
       {searchQuery ? (
         <div className="recent-list">
           <h3 style={{ marginBottom: "10px", fontSize: "1.2rem" }}>Top Results</h3>
-          {searchResults.map((track) => (
-            <div 
-              key={track.id} 
-              className="recent-row" 
-              onClick={() => handlePlayPause(track.uri)} 
-              style={{ cursor: "pointer" }}
-            >
-              <img src={track.album.images[0]?.url} alt={track.name} className="recent-img" />
-              <div className="recent-info">
-                <div className="recent-title">{track.name}</div>
-                <div className="recent-type">Song • {track.artists[0]?.name}</div>
-              </div>
-              
-              {/* Dynamically swap the Play and Pause icons */}
-              {playingUri === track.uri && isPlaying ? (
-                // Pause Icon
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                  <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                </svg>
-              ) : (
-                // Play Icon
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                </svg>
-              )}
+          {searchResults.map((item, index) => {
+            
+            // Songs get album art, Artists/Albums get their direct image
+            const imageUrl = item.searchType === "Song" 
+              ? item.album?.images[0]?.url 
+              : item.images?.[0]?.url;
 
-            </div>
-          ))}
+            return (
+              <div 
+                key={`${item.id}-${index}`} 
+                className="recent-row" 
+                onClick={() => handleResultClick(item)} 
+                style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "15px" }}
+              >
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <img 
+                    src={imageUrl} 
+                    alt={item.name} 
+                    className="recent-img" 
+                    style={{ 
+                      width: "50px", 
+                      height: "50px", 
+                      // Makes Artists circular, just like in your screenshot!
+                      borderRadius: item.searchType === "Artist" ? "50%" : "8px", 
+                      marginRight: "15px",
+                      objectFit: "cover"
+                    }} 
+                  />
+                  <div className="recent-info">
+                    <div className="recent-title" style={{ fontWeight: "bold", fontSize: "1rem" }}>{item.name}</div>
+                    <div className="recent-type" style={{ fontSize: "0.8rem", color: "#b3b3b3" }}>
+                      {item.searchType} {item.searchType === "Song" && `• ${item.artists[0]?.name}`}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Replaced Play/Pause buttons with the Forward Arrow icon */}
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                  <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                </svg>
+
+              </div>
+            );
+          })}
         </div>
       ) : (
         <>

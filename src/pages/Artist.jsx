@@ -5,11 +5,14 @@ import logo from "../assets/AppLogo.png";
 
 const Artist = () => {
   const navigate = useNavigate();
-  // We use this to grab the artist ID from the URL!
-  const { id } = useParams(); 
+  const { id } = useParams(); // Grabs the artist ID from the URL!
   
   const [artist, setArtist] = useState(null);
   const [topTracks, setTopTracks] = useState([]);
+  
+  // Track playing state for the dynamic icons
+  const [playingUri, setPlayingUri] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     const token = window.localStorage.getItem("access_token");
@@ -18,7 +21,6 @@ const Artist = () => {
       return;
     }
 
-    // If there's no ID in the URL, don't try to fetch
     if (!id) return;
 
     const fetchArtistData = async () => {
@@ -38,8 +40,7 @@ const Artist = () => {
         });
         if (tracksRes.ok) {
           const tracksData = await tracksRes.json();
-          // Let's just grab their top 5 hits
-          setTopTracks(tracksData.tracks.slice(0, 5)); 
+          setTopTracks(tracksData.tracks.slice(0, 5)); // Grab top 5 hits
         }
       } catch (error) {
         console.error("Error fetching artist data:", error);
@@ -49,7 +50,7 @@ const Artist = () => {
     fetchArtistData();
   }, [id, navigate]);
 
-  // 3. Play the artist's discography
+  // 3. Play the entire artist's discography
   const playArtist = async () => {
     if (!artist) return;
     const token = window.localStorage.getItem("access_token");
@@ -69,8 +70,42 @@ const Artist = () => {
         },
         body: JSON.stringify({ context_uri: artist.uri }),
       });
+      setIsPlaying(true);
     } catch (error) {
       console.error("Error playing artist:", error);
+    }
+  };
+
+  // 4. Play/Pause specific tracks
+  const handlePlayPause = async (trackUri) => {
+    const token = window.localStorage.getItem("access_token");
+    const deviceId = window.localStorage.getItem("device_id");
+
+    if (!token || !deviceId) return;
+
+    try {
+      if (playingUri === trackUri && isPlaying) {
+        // PAUSE
+        await fetch(`https://api.spotify.com/v1/me/player/pause?device_id=${deviceId}`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setIsPlaying(false);
+      } else {
+        // PLAY
+        await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ uris: [trackUri] }),
+        });
+        setPlayingUri(trackUri);
+        setIsPlaying(true);
+      }
+    } catch (error) {
+      console.error("Error toggling playback:", error);
     }
   };
 
@@ -118,7 +153,7 @@ const Artist = () => {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
             <span style={{ fontSize: '24px', fontWeight: 'bold' }}>...</span>
           </div>
-          {/* Working Play Button */}
+          {/* Main Play Button for the Artist */}
           <div className="big-play-btn" onClick={playArtist} style={{ cursor: "pointer" }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
           </div>
@@ -135,7 +170,7 @@ const Artist = () => {
                 key={track.id} 
                 className="list-row" 
                 style={{ cursor: "pointer" }}
-                // You can add an onClick here later to play the specific track!
+                onClick={() => handlePlayPause(track.uri)} // <-- Added onClick here!
               >
                 <img 
                   src={track.album.images[2]?.url || track.album.images[0]?.url} 
@@ -143,10 +178,30 @@ const Artist = () => {
                   className="list-image" 
                 />
                 <div className="list-text">
-                  <div className="list-title">{track.name}</div>
+                  {/* Title turns green if it's currently playing */}
+                  <div className="list-title" style={{ color: playingUri === track.uri ? "#1db954" : "white" }}>
+                    {track.name}
+                  </div>
                   <div className="list-subtitle">{track.artists.map(a => a.name).join(", ")}</div>
                 </div>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                
+                {/* Dynamically Swap Heart/Play/Pause Icons */}
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="white" style={{ opacity: 0.7 }}><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                  
+                  {playingUri === track.uri && isPlaying ? (
+                    // Pause Icon
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#1db954">
+                      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                    </svg>
+                  ) : (
+                    // Play Icon
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white" style={{ opacity: 0.5 }}>
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                  )}
+                </div>
+
               </div>
             ))
           ) : (

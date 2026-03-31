@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // <-- IMPORTANT: Imported useNavigate
 // import "./Player.css";
 
 const Player = () => {
@@ -7,11 +8,12 @@ const Player = () => {
   const [is_active, setActive] = useState(false);
   const [current_track, setTrack] = useState(null);
 
+  const navigate = useNavigate(); // <-- IMPORTANT: Initialized navigate
+
   useEffect(() => {
     const token = window.localStorage.getItem("access_token");
     if (!token) return;
 
-    // 1. DEFINE THE READY FUNCTION FIRST
     window.onSpotifyWebPlaybackSDKReady = () => {
       const spotifyPlayer = new window.Spotify.Player({
         name: "Melo Web Player",
@@ -44,7 +46,6 @@ const Player = () => {
       spotifyPlayer.connect();
     };
 
-    // 2. THEN INJECT THE SCRIPT
     if (!document.querySelector('script[src="https://sdk.scdn.co/spotify-player.js"]')) {
       const script = document.createElement("script");
       script.src = "https://sdk.scdn.co/spotify-player.js";
@@ -59,7 +60,6 @@ const Player = () => {
 
   const transferPlaybackToMelo = async (deviceId, token) => {
     try {
-      // THE REAL SPOTIFY TRANSFER ENDPOINT
       await fetch("https://api.spotify.com/v1/me/player", {
         method: "PUT",
         headers: {
@@ -77,24 +77,35 @@ const Player = () => {
     }
   };
 
+  // <-- IMPORTANT: This function handles clicking the player bar!
+  const handlePlayerClick = () => {
+    if (current_track) {
+      navigate(`/song/${current_track.id}`);
+    }
+  };
+
   return (
-    <div className="player-container" style={{ 
-      display: "flex", 
-      alignItems: "center", 
-      justifyContent: "space-between", 
-      padding: "10px 20px", 
-      backgroundColor: "#181818", 
-      borderTop: "1px solid #282828",
-      color: "white",
-      position: "fixed",
-      bottom: "60px", /* Adjusted to sit just above your bottom nav bar */
-      left: 0,
-      width: "100%",
-      boxSizing: "border-box",
-      zIndex: 1000
-    }}>
+    <div 
+      className="player-container" 
+      onClick={handlePlayerClick} // <-- IMPORTANT: Added the click listener to the whole bar
+      style={{ 
+        display: "flex", 
+        alignItems: "center", 
+        justifyContent: "space-between", 
+        padding: "10px 20px", 
+        backgroundColor: "#181818", 
+        borderTop: "1px solid #282828",
+        color: "white",
+        position: "fixed",
+        bottom: "60px", 
+        left: 0,
+        width: "100%",
+        boxSizing: "border-box",
+        zIndex: 1000,
+        cursor: current_track ? "pointer" : "default" // Shows a pointer finger if clickable
+      }}>
       
-      {/* Left side: Track Info (Shows empty state if no song is playing) */}
+      {/* Left side: Track Info */}
       <div className="now-playing" style={{ display: "flex", alignItems: "center", width: "30%" }}>
         {current_track ? (
           <>
@@ -120,7 +131,10 @@ const Player = () => {
         
         {/* Previous Button */}
         <button 
-          onClick={() => player && player.previousTrack()}
+          onClick={(e) => {
+            e.stopPropagation(); // <-- IMPORTANT: Stops the click from opening the page
+            if (player) player.previousTrack();
+          }}
           style={{ background: "none", border: "none", color: "#b3b3b3", cursor: "pointer" }}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
@@ -128,7 +142,10 @@ const Player = () => {
 
         {/* Play/Pause Button */}
         <button 
-          onClick={() => player && player.togglePlay()}
+          onClick={(e) => {
+            e.stopPropagation(); // <-- IMPORTANT: Stops the click from opening the page
+            if (player) player.togglePlay();
+          }}
           style={{ background: "white", border: "none", color: "black", borderRadius: "50%", width: "40px", height: "40px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
         >
           {is_paused ? (
@@ -144,7 +161,10 @@ const Player = () => {
 
         {/* Next Button */}
         <button 
-          onClick={() => player && player.nextTrack()}
+          onClick={(e) => {
+            e.stopPropagation(); // <-- IMPORTANT: Stops the click from opening the page
+            if (player) player.nextTrack();
+          }}
           style={{ background: "none", border: "none", color: "#b3b3b3", cursor: "pointer" }}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>

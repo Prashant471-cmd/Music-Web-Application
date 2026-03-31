@@ -732,6 +732,7 @@ body {
   }
 }
 
+
 /* =========================================
    SONG PAGE
 ========================================= */
@@ -817,6 +818,17 @@ body {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
+/* NEW: Timestamp row below the progress bar */
+.time-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #a0a0a0;
+  margin-top: 8px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
 .playback-controls {
   display: flex;
   justify-content: center;
@@ -855,6 +867,7 @@ body {
     gap: 10px;
   }
 }
+
 
 /* =========================================
    SEARCH PAGE

@@ -37,9 +37,9 @@ function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/library" element={<Library />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/artist" element={<Artist />} />
-          <Route path="/album" element={<Album />} />
-          <Route path="/song" element={<Song />} />
+          <Route path="/artist/:id" element={<Artist />} />
+          <Route path="/album/:id" element={<Album />} />
+          <Route path="/song/:id" element={<Song />} />
         </Route>
       </Routes>
     </BrowserRouter>

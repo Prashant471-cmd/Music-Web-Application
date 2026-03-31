@@ -1,13 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/AppLogo.png";
-// import "./Song.css";
+// import "./Song.css"; 
 
 const Song = () => {
   const navigate = useNavigate();
   const [currentTrack, setCurrentTrack] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  
+  // NEW: State to hold the raw millisecond times
+  const [progressMs, setProgressMs] = useState(0);
+  const [durationMs, setDurationMs] = useState(0);
+
+  // NEW: Helper function to convert milliseconds to m:ss format
+  const formatTime = (ms) => {
+    if (!ms) return "0:00";
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
 
   // 1. Function to check what is currently playing
   const fetchCurrentlyPlaying = async () => {
@@ -30,7 +43,11 @@ const Song = () => {
         setCurrentTrack(data.item);
         setIsPlaying(data.is_playing);
         
-        // Calculate progress percentage for the bar
+        // Save raw milliseconds for the text display
+        setProgressMs(data.progress_ms);
+        setDurationMs(data.item.duration_ms);
+
+        // Calculate progress percentage for the visual bar
         const progressPercent = (data.progress_ms / data.item.duration_ms) * 100;
         setProgress(progressPercent);
       }
@@ -129,6 +146,12 @@ const Song = () => {
         <div className="progress-bar-bg">
           <div className="progress-bar-fill" style={{ width: `${progress}%` }}></div>
           <div className="progress-knob" style={{ left: `${progress}%` }}></div>
+        </div>
+        
+        {/* NEW: Dynamic Timestamps */}
+        <div className="time-info">
+          <span>{formatTime(progressMs)}</span>
+          <span>{formatTime(durationMs)}</span>
         </div>
       </div>
 
