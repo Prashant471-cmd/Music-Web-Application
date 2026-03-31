@@ -177,8 +177,19 @@ const Artist = () => {
           <div className="big-play-btn" 
             onClick={playArtist} 
             style={{ cursor: "pointer" }}>
-              
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+
+            {isPlaying ? (
+              // Pause Icon
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+              </svg>
+            ) : (
+              // Play Icon
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            )}
+
           </div>
         </div>
       </div>

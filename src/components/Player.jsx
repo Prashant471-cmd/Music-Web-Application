@@ -127,7 +127,7 @@ const Player = () => {
       </div>
 
       {/* Center: Controls */}
-      <div className="player-controls" style={{ display: "flex", alignItems: "center", gap: "20px", width: "40%", justifyContent: "center" }}>
+      <div className="player-controls" style={{ display: "flex", alignItems: "center", gap: "20px", width: "80%", justifyContent: "right" }}>
         
         {/* Previous Button */}
         <button 

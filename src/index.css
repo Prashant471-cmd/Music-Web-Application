@@ -1171,11 +1171,12 @@ body {
   bottom: 0;
   left: 0;
   width: 100%;
+  padding: 10px 20px;
   height: 60px; /* Gives it a consistent height */
   background-color: #121212; /* Dark Spotify background */
   z-index: 1000;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -1208,9 +1209,9 @@ body {
 /* Optional Desktop Tweak */
 @media screen and (min-width: 768px) {
   .melo-bottom-nav {
-    max-width: 500px;
+    max-width: 100%;
     margin: 0 auto;
-    left: 50%;
+    left: 0;
     transform: translateX(-50%);
     border-radius: 20px 20px 0 0;
     border: 1px solid #282828;

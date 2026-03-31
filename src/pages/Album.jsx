@@ -143,8 +143,11 @@ const Album = ({ token }) => {
       </div>
 
       {/* Action Buttons */}
-      <div className="album-actions-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: "20px" }}>
-        <div className="action-icons" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+      <div className="album-actions-row" 
+        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: "20px" }}>
+
+        <div className="action-icons" 
+          style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
           <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
           <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
           <span style={{ fontSize: '24px', fontWeight: 'bold' }}>...</span>
@@ -160,9 +163,9 @@ const Album = ({ token }) => {
           }}
         >
           {isPlaying ? (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="black"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="green"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
           ) : (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="black"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="green"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
           )}
         </div>
       </div>
