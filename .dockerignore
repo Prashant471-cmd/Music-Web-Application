@@ -1,0 +1,28 @@
+# node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# build output
+dist
+build
+
+# vcs
+.git
+.gitignore
+
+# env
+.env*
+*.local
+
+# tests & docs
+coverage
+test
+tests
+docs
+README.md
+
+# OS / editor
+.DS_Store
+.vscode
+.idea
