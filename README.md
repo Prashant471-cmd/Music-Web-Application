@@ -17,6 +17,19 @@ The React Compiler is not enabled on this template because of its impact on dev 
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 
+## Spotify login notes (Docker)
+
+This app uses **Spotify Authorization Code + PKCE** (no client secret in the frontend).
+
+- The Spotify **Client ID is public** and will be visible in the browser/network. Do **not** put a client secret in this repo.
+- OAuth redirect URIs must match **exactly** what is configured in the Spotify Developer Dashboard.
+	- Vite dev usually runs at `http://localhost:5173/login`
+	- Docker/NGINX in this repo serves on port 80, so it becomes `http://localhost/login`
+
+If login works on `npm run dev` but not in Docker, add `http://localhost/login` to your Spotify app's Redirect URIs, then rebuild the Docker image.
+
+Optional: set `VITE_SPOTIFY_REDIRECT_URI` at build time to force a specific redirect URI.
+
 ```
 Music-Web-Application
 ├─ dockerfile
