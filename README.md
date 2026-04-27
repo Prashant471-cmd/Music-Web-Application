@@ -1,7 +1,8 @@
 # React + Vite
 https://melo.prashantdeuja.com.np/
 
-To run the application, execute `docker compose up -d --build`.
+To run this application, first clone the repository using `git clone`, and then run `docker compose up -d --build`.
+``
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
