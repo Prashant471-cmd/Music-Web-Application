@@ -1,8 +1,28 @@
 # React + Vite
 https://melo.prashantdeuja.com.np/
 
-To run this application, first clone the repository using `git clone`, and then run `docker compose up -d --build`.
-``
+##  Running the Music Web Application
+
+Follow the steps below to run the application locally using **Docker Compose**.
+
+### ✅ Prerequisites
+Make sure you have **Git**, **Docker**, and **Docker Compose** installed on your system.
+
+### 📥 Step 1: Clone the Repository
+First, clone the project from GitHub using `git clone https://github.com/Prashant471-cmd/Music-Web-Application.git`, then move into the project directory with `cd Music-Web-Application`.
+
+### 🐳 Step 2: Build and Run the Application
+Build and start the application using Docker Compose by running `docker compose up -d --build`.  
+The `--build` flag ensures the image is rebuilt using the latest source code, and `-d` runs the containers in detached (background) mode.
+
+### 🌐 Step 3: Access the Application
+Once the containers are running, open your browser and visit `http://localhost`.  
+🎵 The Music Web Application will now be running and served via Nginx.
+
+### 🛑 Stopping the Application (Optional)
+To stop and remove the running containers, run `docker compose down`.
+
+---
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
